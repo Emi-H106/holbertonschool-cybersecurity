@@ -1,2 +1,2 @@
 #!/bin/bash
-mkdir -p /shared/devs && chgrp developers /shared/devs && chmod 3775 /shared/devs
+mkdir -p "$1" && chgrp "$2" "$1" && chmod 3775 "$1"
