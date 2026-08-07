@@ -9,7 +9,7 @@ for file in "$1"/*.log
 do
     [ -f "$file" ] || continue
 
-    if [ "$(stat -c %s "$file")" -gt 1024 ]; then
+    if [ "$(stat -c%s "$file")" -gt 1024 ]; then
         gzip "$file"
         mv "$file.gz" "$1/backups/"
     else
