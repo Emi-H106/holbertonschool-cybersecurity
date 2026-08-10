@@ -1,2 +1,2 @@
 #!/bin/bash
-ps -eo pid=,comm= --sort=-%cpu | awk 'NR==1 {print $1, $2}'
+ps -eo pid,pcpu,comm= --sort=-%cpu | awk 'NR==2 {print $1, $3}'
