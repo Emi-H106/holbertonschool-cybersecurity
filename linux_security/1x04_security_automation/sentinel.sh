@@ -48,7 +48,7 @@ check_ports() {
         done
 
         if [ "$allowed" = false ]; then
-            pid=$(lsof -t -iTCP:"$port" -sTCP:LISTEN)
+            pid=$(netstat -ltnp 2>/dev/null | awk -v p=":$port" '$4 ~ p"$" {split($7,a,"/"); print a[1]}')
 
             kill "$pid"
 
