@@ -1,20 +1,31 @@
 #!/bin/bash
-[ -f sentinel.conf ] || { echo "Error: config file missing" >&2; exit 1; }; source sentinel.conf; declare -p SERVICES >/dev/null 2>&1 && declare -p FILES_TO_WATCH >/dev/null 2>&1 || { echo "Error: required variables missing" >&2; exit 1; }
+[ -f sentinel.conf ] || { echo "Error: config file missing" >&2; exit 1; }; source sentinel.conf; declare -p SERVICES >/dev/null 2>&1 && declare -p FILES_TO_WATCH >/dev/null 2>&1 && declare -p ALLOWED_PORTS >/dev/null 2>&1 || { echo "Error: required variables missing" >&2; exit 1; }
+
+log() {
+    component="$1"
+    target="$2"
+    status="$3"
+    details="$4"
+
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+    echo "{\"timestamp\":\"$timestamp\",\"component\":\"$component\",\"target\":\"$target\",\"status\":\"$status\",\"details\":\"$details\"}" >> /var/log/sentinel.log
+}
+
 
 check_services() {
     for svc in "${SERVICES[@]}"; do
         if pgrep -f "$svc" >/dev/null; then
-            echo "OK: $svc is running"
+            log "SERVICE" "$svc" "OK" "Service is running"
         else
             if eval "$svc"; then
-                echo "FIXED: Restarted $svc"
+                log "SERVICE" "$svc" "FIXED" "Service restarted"
             else
-                echo "ERROR: Failed to restart $svc"
+                log "SERVICE" "$svc" "ALERT" "Failed to restart $svc"
             fi
         fi
     done
 }
-check_services
 
 
 check_integrity() {
@@ -27,14 +38,16 @@ check_integrity() {
     golden_hash=$(md5sum "$golden" | awk '{print $1}')
 
     if [ "$current_hash" = "$golden_hash" ]; then
-            echo "OK: $file integrity verified"
+            log "INTEGRITY" "$file" "OK" "File integrity verified"
         else
-            cp "$golden" "$file"
-            echo "FIXED: Restored $file"
+            if cp "$golden" "$file"; then
+                log "INTEGRITY" "$file" "FIXED" "File restored from backup"
+            else
+                log "INTEGRITY" "$file" "ALERT" "Failed to restore file"
+            fi
         fi
     done
 }
-check_integrity
 
 check_ports() {
     for port in $(ss -ltn | awk 'NR>1 {print $4}' | awk -F: '{print $NF}'); do
@@ -50,12 +63,19 @@ check_ports() {
         if [ "$allowed" = false ]; then
             pid=$(netstat -ltnp 2>/dev/null | awk -v p=":$port" '$4 ~ p"$" {split($7,a,"/"); print a[1]}')
 
-            kill "$pid"
-
-            echo "ALERT: Killed rogue process on port $port"
+            if [ -n "$pid" ]; then
+                    if kill "$pid"; then
+                        log "PORT" "$port" "ALERT" "Killed rogue process on port $port"
+                    else
+                        log "PORT" "$port" "ALERT" "Failed to kill rogue process on port $port"
+                    fi
+            else
+                log "PORT" "$port" "ALERT" "Could not find process on port $port"
+            fi
         fi
     done
 }
-check_ports
 
-        
+check_services
+check_integrity
+check_ports
