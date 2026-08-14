@@ -7,7 +7,7 @@ log() {
     status="$3"
     details="$4"
 
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    timestamp=$(date -u +%FT%TZ)
 
     echo "{\"timestamp\":\"$timestamp\",\"component\":\"$component\",\"target\":\"$target\",\"status\":\"$status\",\"details\":\"$details\"}" >> /var/log/sentinel.log
 }
