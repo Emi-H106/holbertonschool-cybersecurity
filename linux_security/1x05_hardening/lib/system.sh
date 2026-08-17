@@ -3,7 +3,7 @@
 configure_system() {
     export DEBIAN_FRONTEND=noninteractive
 
-    if apt-get update -y && apt-get upgrade -y; then
+    if apt-get update -y && apt-get upgrade -y </dev/null; then
         log "INFO" "System packages updated"
     else
         WARNINGS="Some package updates could not be completed."
