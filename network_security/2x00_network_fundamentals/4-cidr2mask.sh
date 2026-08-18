@@ -1,0 +1,2 @@
+#!/bin/bash
+cidr=$1; for ((i=0; i<4; i++)); do if ((cidr >= 8)); then octet=255; cidr=$((cidr-8)); elif ((cidr > 0)); then octet=$((256-2**(8-cidr))); cidr=0; else octet=0; fi; ((i>0)) && printf "."; printf "%d" "$octet"; done; printf "\n"
