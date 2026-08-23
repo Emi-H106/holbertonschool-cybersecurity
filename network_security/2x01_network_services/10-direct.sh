@@ -1,2 +1,2 @@
 #!/bin/bash
-dig +short @"$1" A "$2"
+dig +short @$1 A "$2"
