@@ -1,0 +1,7 @@
+employee_id,name,salary,ssn,bonus
+1001,John Smith,85000,321-54-4521,12000
+1002,Jane Doe,92000,654-32-7834,15000
+1003,Bob Johnson,78000,987-65-1234,8000
+1004,Alice Williams,105000,456-78-9012,20000
+1005,Carol Davis,88000,789-01-2345,11000
+# FLAG{p4yr0ll_br34ch}
