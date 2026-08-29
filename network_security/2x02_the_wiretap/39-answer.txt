@@ -1,1 +1,1 @@
-cmd-replay.darknet-c2.io
+cmd-relay.darknet-c2.io
