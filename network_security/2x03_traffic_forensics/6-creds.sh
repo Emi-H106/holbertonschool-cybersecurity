@@ -1,0 +1,2 @@
+#!/bin/bash
+tshark -r "$1" -Y "urlencoded-form" -T fields -E separator=, -e urlencoded-form.key -e urlencoded-form.value | awk -F'\t' '{split($1,k,","); split($2,v,","); for(i=1;i<=length(k);i++) if(k[i]=="password" || k[i]=="pass" || k[i]=="pwd") print v[i]}'
