@@ -386,6 +386,8 @@ Other service accounts, such as `ftp` and `telnetd`, use:
 
 The `student` account is used for access to the Holberton lab environment, so it is not considered a LogiCorp security problem.
 
+No specific Finance user account was identified.
+
 
 ### 5.2 Sudo Configuration
 
