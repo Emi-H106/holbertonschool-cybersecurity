@@ -1,0 +1,23 @@
+/usr/sbin/nginx {
+    # Common shared libraries required by nginx
+    #include <abstractions/base>
+
+    # Name and DNS resolution
+    #include <abstractions/nameservice>
+
+    # SSL/TLS certificate access for HTTPS
+    #include <abstractions/ssl_certs>
+
+    /usr/sbin/nginx r,
+    /etc/nginx/** r,
+    /usr/share/nginx/html/** r,
+    /var/log/nginx/** w,
+    /opt/securehealth/plugin.conf r,
+    /opt/securehealth/data/** r,
+
+    # PID file required for nginx process management
+    /run/nginx.pid rw,
+
+    network inet stream,
+    network inet dgram,
+}
