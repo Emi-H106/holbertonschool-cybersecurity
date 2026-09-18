@@ -17,4 +17,4 @@
     echo '</table>'
     echo '</body>'
     echo '</html>'
-} > "$2"
+} > $2
