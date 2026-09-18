@@ -1,3 +1,4 @@
+#!/bin/bash
 awk -F'"' '{
     split($1, client, " ")
     split($3, response, " ")
