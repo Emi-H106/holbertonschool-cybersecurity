@@ -7,7 +7,7 @@ rule='if ($inputname != "imudp") then {
 }'
 
 if ! sudo grep -Fq '*.* @127.0.0.1:514' "$config"; then
-    printf '\n%s\n' "$rule" | sudo tee -a "$config" > /dev/null
+    printf '\n%s\n' "$rule" | sudo sh -c 'cat >> /etc/rsyslog.d/50-default.conf'
 fi
 
 sudo rsyslogd -N1
