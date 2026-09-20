@@ -25,23 +25,24 @@ if ! id test_dev >/dev/null 2>&1; then
     useradd -m -s /bin/bash test_dev
 fi
 
-if ! id test_ops >/dev/null 2>&1; then
-    useradd -m -s /bin/bash test_ops
+if ! id test_sarah >/dev/null 2>&1; then
+    useradd -m -s /bin/bash test_sarah
 fi
 
-if ! id test_auditor >/dev/null 2>&1; then
-    useradd -m -s /bin/bash test_auditor
+if ! id test_dave >/dev/null 2>&1; then
+    useradd -m -s /bin/bash test_dave
 fi
 
 # Assign each test user to a role.
 usermod -aG devs test_dev
-usermod -aG ops test_ops
-usermod -aG auditors test_auditor
+usermod -aG ops test_sarah
+usermod -aG auditors test_dave
+
 
 # Restrict access to home directories.
 chmod 700 /home/test_dev
-chmod 700 /home/test_ops
-chmod 700 /home/test_auditor
+chmod 700 /home/test_sarah
+chmod 700 /home/test_dave
 
 # Allow the ops group to restart Nginx.
 cat > /etc/sudoers.d/nexus-rbac.tmp <<'EOF'
