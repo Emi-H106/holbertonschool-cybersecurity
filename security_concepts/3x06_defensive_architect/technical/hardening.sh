@@ -4,11 +4,11 @@
 
 set -e
 
-ADMIN_USER="$1"
+ADMIN_USER="${1:-}"
 SSH_CONFIG="/etc/ssh/sshd_config"
 HARDENING_CONFIG="/etc/ssh/sshd_config.d/00-nexus-hardening.conf"
 
-# Check that the script is run as root.
+# Check root privileges.
 if [ "$(id -u)" -ne 0 ]; then
     echo "Please run this script with sudo."
     exit 1
@@ -20,18 +20,18 @@ if [ -z "$ADMIN_USER" ] || ! id "$ADMIN_USER" >/dev/null 2>&1; then
     exit 1
 fi
 
-# Check that this user can still use SSH and sudo.
-if ! id -nG "$ADMIN_USER" | grep -qw "ssh_users"; then
+# Check that the administrator can use SSH and sudo.
+if ! id -nG "$ADMIN_USER" | grep -qw ssh_users; then
     echo "Add $ADMIN_USER to the ssh_users group first."
     exit 1
 fi
 
-if ! id -nG "$ADMIN_USER" | grep -qw "sudo"; then
+if ! id -nG "$ADMIN_USER" | grep -qw sudo; then
     echo "Add $ADMIN_USER to the sudo group first."
     exit 1
 fi
 
-# Check that the administrator has an authorized SSH key.
+# Check that the administrator has an SSH public key.
 ADMIN_HOME=$(getent passwd "$ADMIN_USER" | cut -d: -f6)
 
 if [ ! -s "$ADMIN_HOME/.ssh/authorized_keys" ]; then
@@ -39,13 +39,13 @@ if [ ! -s "$ADMIN_HOME/.ssh/authorized_keys" ]; then
     exit 1
 fi
 
-# Ubuntu must load configuration files from this directory.
-if ! grep -Eq '^[[:space:]]*Include[[:space:]]+/etc/ssh/sshd_config\.d/\*\.conf' "$SSH_CONFIG"; then
-    echo "SSH does not load files from sshd_config.d. No changes were made."
+# Check that Ubuntu loads the additional SSH configuration files.
+if ! grep -Fq 'Include /etc/ssh/sshd_config.d/*.conf' "$SSH_CONFIG"; then
+    echo "SSH does not load files from sshd_config.d."
     exit 1
 fi
 
-# Write the same file on every run to avoid duplicate settings.
+# Write the security settings. Re-running overwrites the same file.
 cat > "$HARDENING_CONFIG" <<'EOF'
 PubkeyAuthentication yes
 PasswordAuthentication no
@@ -54,9 +54,10 @@ PermitRootLogin no
 AllowGroups ssh_users
 EOF
 
+chown root:root "$HARDENING_CONFIG"
 chmod 600 "$HARDENING_CONFIG"
 
-# Apply the settings only if the configuration is valid.
+# Validate before applying the configuration.
 if /usr/sbin/sshd -t; then
     systemctl reload ssh
     echo "SSH hardening completed."
