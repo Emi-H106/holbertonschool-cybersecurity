@@ -32,16 +32,24 @@ decisions and informs the security lead and management.
 ## 3. Eradication
 
 - Determine how the attacker gained access.
-- Remove unauthorized accounts, keys, software, or scheduled tasks.
-- Rotate exposed database passwords and SSH keys.
-- Fix the weakness used in the attack, such as an exposed port,
-  weak credentials, or missing updates.
-- Check other systems for the same weakness.
+- Scan affected hosts and accounts for malware, backdoors, and
+  persistence mechanisms, including scheduled tasks and unknown
+  services. Remove what the investigation finds.
+- Remove unauthorized accounts and SSH keys.
+- Patch the vulnerabilities used in the attack and correct unsafe
+  settings, such as public database access.
+- Reset all credentials associated with the affected systems.
+  This includes database users, service accounts, administrator
+  accounts, API keys, and SSH keys that may have been exposed.
+- Check that a clean backup exists. Verify that it was created before
+  the compromise and has not been modified by the attacker.
+- Check other systems for the same vulnerabilities and signs of
+  compromise.
 
 ## 4. Recovery
 
-- Check the integrity of the database. Restore from a verified
-  backup if the data was changed or destroyed.
+- Check the integrity of the database. If data was changed or
+  destroyed, restore it from the clean, verified backup.
 - Test the application and database connection in a controlled way.
 - Reconnect the service gradually and monitor logs for new
   suspicious activity.
