@@ -8,11 +8,17 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # Create the role groups if they do not already exist.
-for GROUP in devs ops auditors; do
-    if ! getent group "$GROUP" >/dev/null; then
-        groupadd "$GROUP"
-    fi
-done
+if ! getent group devs >/dev/null; then
+    groupadd devs
+fi
+
+if ! getent group ops >/dev/null; then
+    groupadd ops
+fi
+
+if ! getent group auditors >/dev/null; then
+    groupadd auditors
+fi
 
 # Create test users if they do not already exist.
 if ! id test_dev >/dev/null 2>&1; then
