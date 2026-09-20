@@ -50,11 +50,17 @@ decisions and informs the security lead and management.
 
 - Check the integrity of the database. If data was changed or
   destroyed, restore it from the clean, verified backup.
-- Test the application and database connection in a controlled way.
-- Reconnect the service gradually and monitor logs for new
-  suspicious activity.
-- Confirm that authorized users can work and that unauthorized
-  connections are blocked.
+- Before returning to full production use, perform validation tests.
+  Check important records, application functions, database connections,
+  and access permissions.
+- Sarah records the test results and confirms that the restored system
+  works correctly. Dave approves the return to full production use.
+- Restore access gradually, starting with essential services.
+- Use enhanced monitoring for at least 72 hours after restoration.
+  Review database, authentication, firewall, and central logs for
+  renewed suspicious activity.
+- Confirm that authorized users can work and unauthorized connections
+  are blocked. If the attack returns, contain the system again.
 
 ## 5. Lessons Learned
 
