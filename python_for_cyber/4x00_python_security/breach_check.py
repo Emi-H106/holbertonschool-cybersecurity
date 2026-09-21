@@ -22,6 +22,24 @@ def read_file(filename: str) -> list:
         )
         sys.exit(1)
 
+def clean_data(lines: list) -> list:
+    """Clean raw input lines and return valid data."""
+    clean_lines = []
+
+    for line in lines:
+        clean_line = line.strip()
+
+        if not clean_line:
+            continue
+
+        if clean_line.startswith("#"):
+            continue
+
+        clean_lines.append(clean_line)
+
+    return clean_lines
+
+
 def main():
     """Parse command-line arguments and run BreachCheck."""
     parser = argparse.ArgumentParser(
@@ -51,6 +69,8 @@ def main():
     args = parser.parse_args()
 
     lines = read_file(args.file)
+
+    clean_lines = clean_data(lines)
 
     print("BreachCheck v1.0 startup...")
 
