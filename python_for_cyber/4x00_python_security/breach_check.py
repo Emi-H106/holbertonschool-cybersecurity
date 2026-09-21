@@ -3,6 +3,7 @@
 
 import argparse
 import sys
+import re
 
 def read_file(filename: str) -> list:
     """Read a file safely and return its lines as a list."""
@@ -39,6 +40,11 @@ def clean_data(lines: list) -> list:
 
     return clean_lines
 
+def validate_line(line: str) -> bool:
+    """Return True if the line follows the email:password format."""
+    pattern = r"^[^@\s:]+@[^@\s:]+\.[^@\s:]+:[^:\s]+$"
+    return bool(re.fullmatch(pattern, line))
+
 
 def main():
     """Parse command-line arguments and run BreachCheck."""
@@ -71,6 +77,12 @@ def main():
     lines = read_file(args.file)
 
     clean_lines = clean_data(lines)
+
+    valid_lines = []
+
+    for line in clean_lines:
+        if validate_line(line):
+            valid_lines.append(line)
 
     print("BreachCheck v1.0 startup...")
 
