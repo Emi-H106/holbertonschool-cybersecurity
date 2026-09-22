@@ -125,9 +125,9 @@ def main():
             valid_lines.append(line)
 
     for line in valid_lines:
-    email, password = line.split(":", 1)
-    status = check_policy(password)
-    logging.info("%s: %s", email, status)
+        email, password = line.split(":", 1)
+        status = check_policy(password)
+        logging.info("%s: %s", email, status)
 
 
 if __name__ == "__main__":
