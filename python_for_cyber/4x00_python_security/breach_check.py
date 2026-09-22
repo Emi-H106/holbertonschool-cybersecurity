@@ -2,8 +2,32 @@
 """BreachCheck main module."""
 
 import argparse
+import logging
 import sys
 import re
+
+
+def setup_logger():
+    """Configure console and file logging."""
+    logger = logging.getLogger("breach_check")
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(message)s"
+    )
+
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    file_handler = logging.FileHandler("breach_check.log")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
+    return logger
 
 def read_file(filename: str) -> list:
     """Read a file safely and return its lines as a list."""
@@ -11,17 +35,12 @@ def read_file(filename: str) -> list:
         with open(filename, "r") as file:
             return file.readlines()
     except FileNotFoundError:
-        print(
-            f"[ERROR] File not found: {filename}",
-            file=sys.stderr
-        )
+        logger.error("File not found: %s", filename)
         sys.exit(1)
     except PermissionError:
-        print(
-            f"[ERROR] Permission denied: {filename}",
-            file=sys.stderr
-        )
+        logger.error("Permission denied: %s", filename)
         sys.exit(1)
+
 
 def clean_data(lines: list) -> list:
     """Clean raw input lines and return valid data."""
@@ -40,9 +59,13 @@ def clean_data(lines: list) -> list:
 
     return clean_lines
 
+
 def validate_line(line: str) -> bool:
     """Return True if the line follows the email:password format."""
+    logger.debug("Starting regex check")
+
     pattern = r"^[^@\s:]+@[^@\s:]+\.[^@\s:]+:[^:\s]+$"
+
     return bool(re.fullmatch(pattern, line))
 
 
@@ -74,8 +97,10 @@ def main():
 
     args = parser.parse_args()
 
-    lines = read_file(args.file)
+    logger.info("BreachCheck v1.0 startup...")
+    logger.info("Processing file...")
 
+    lines = read_file(args.file)
     clean_lines = clean_data(lines)
 
     valid_lines = []
@@ -84,8 +109,7 @@ def main():
         if validate_line(line):
             valid_lines.append(line)
 
-    print("BreachCheck v1.0 startup...")
-
 
 if __name__ == "__main__":
     main()
+    
