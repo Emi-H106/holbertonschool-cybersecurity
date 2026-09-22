@@ -3,6 +3,7 @@
 
 import argparse
 import logging
+import hashlib
 import re
 import sys
 
@@ -81,6 +82,11 @@ def check_policy(password: str) -> str:
 
     return "COMPLIANT"
 
+def hash_password(password: str, salt: str) -> str:
+    """Return the SHA-256 hash of a password combined with a salt."""
+    salted_password = password.encode() + salt.encode()
+    return hashlib.sha256(salted_password).hexdigest()
+
 
 def main():
     """Parse command-line arguments and run BreachCheck."""
@@ -127,7 +133,11 @@ def main():
     for line in valid_lines:
         email, password = line.split(":", 1)
         status = check_policy(password)
+
         logging.info("%s: %s", email, status)
+
+        if status == "WEAK":
+            hashed_password = hash_password(password, "breachcheck")
 
 
 if __name__ == "__main__":
