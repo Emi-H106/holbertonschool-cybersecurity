@@ -3,14 +3,13 @@
 
 import argparse
 import logging
-import sys
 import re
+import sys
 
 
-def setup_logger():
+def setup_logging():
     """Configure console and file logging."""
-    logger = logging.getLogger("breach_check")
-    logger.setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
         "%(asctime)s - %(levelname)s - %(message)s"
@@ -24,10 +23,9 @@ def setup_logger():
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+    logging.getLogger().addHandler(console_handler)
+    logging.getLogger().addHandler(file_handler)
 
-    return logger
 
 def read_file(filename: str) -> list:
     """Read a file safely and return its lines as a list."""
@@ -35,10 +33,10 @@ def read_file(filename: str) -> list:
         with open(filename, "r") as file:
             return file.readlines()
     except FileNotFoundError:
-        logger.error("File not found: %s", filename)
+        logging.error("File not found: %s", filename)
         sys.exit(1)
     except PermissionError:
-        logger.error("Permission denied: %s", filename)
+        logging.error("Permission denied: %s", filename)
         sys.exit(1)
 
 
@@ -62,7 +60,7 @@ def clean_data(lines: list) -> list:
 
 def validate_line(line: str) -> bool:
     """Return True if the line follows the email:password format."""
-    logger.debug("Starting regex check")
+    logging.debug("Starting regex check")
 
     pattern = r"^[^@\s:]+@[^@\s:]+\.[^@\s:]+:[^:\s]+$"
 
@@ -97,8 +95,10 @@ def main():
 
     args = parser.parse_args()
 
-    logger.info("BreachCheck v1.0 startup...")
-    logger.info("Processing file...")
+    setup_logging()
+
+    logging.info("BreachCheck v1.0 startup...")
+    logging.info("Processing file...")
 
     lines = read_file(args.file)
     clean_lines = clean_data(lines)
