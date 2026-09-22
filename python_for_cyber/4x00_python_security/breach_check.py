@@ -66,6 +66,21 @@ def validate_line(line: str) -> bool:
 
     return bool(re.fullmatch(pattern, line))
 
+def check_policy(password: str) -> str:
+    """Return WEAK or COMPLIANT based on the password policy."""
+    common_passwords = ["password", "123456"]
+
+    if len(password) < 8:
+        return "WEAK"
+
+    if password.isalpha():
+        return "WEAK"
+
+    if password in common_passwords:
+        return "WEAK"
+
+    return "COMPLIANT"
+
 
 def main():
     """Parse command-line arguments and run BreachCheck."""
@@ -109,7 +124,11 @@ def main():
         if validate_line(line):
             valid_lines.append(line)
 
+    for line in valid_lines:
+    email, password = line.split(":", 1)
+    status = check_policy(password)
+    logging.info("%s: %s", email, status)
+
 
 if __name__ == "__main__":
     main()
-    
