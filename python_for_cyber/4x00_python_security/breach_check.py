@@ -2,6 +2,7 @@
 """BreachCheck main module."""
 
 import argparse
+import configparser
 import logging
 import hashlib
 import re
@@ -71,7 +72,7 @@ def check_policy(password: str) -> str:
     """Return WEAK or COMPLIANT based on the password policy."""
     common_passwords = ["password", "123456"]
 
-    if len(password) < 8:
+    if len(password) < min_length:
         return "WEAK"
 
     if password.isalpha():
@@ -86,6 +87,16 @@ def hash_password(password: str, salt: str) -> str:
     """Return the SHA-256 hash of a password combined with a salt."""
     salted_password = password.encode() + salt.encode()
     return hashlib.sha256(salted_password).hexdigest()
+
+def load_config():
+    """Load security settings from config.ini."""
+    config = configparser.ConfigParser()
+
+    if not config.read("config.ini"):
+        logging.error("[ERROR] Config file missing")
+        sys.exit(1)
+
+    return config
 
 
 def main():
@@ -118,6 +129,11 @@ def main():
 
     setup_logging()
 
+    config = load_config()
+
+    salt = config["SECURITY"]["Salt"]
+    min_length = config.getint("SECURITY", "MinLength")
+
     logging.info("BreachCheck v1.0 startup...")
     logging.info("Processing file...")
 
@@ -137,7 +153,7 @@ def main():
         logging.info("%s: %s", email, status)
 
         if status == "WEAK":
-            hashed_password = hash_password(password, "breachcheck")
+            hashed_password = hash_password(password, salt)
 
 
 if __name__ == "__main__":
