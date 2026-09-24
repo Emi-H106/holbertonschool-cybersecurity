@@ -6,13 +6,13 @@ import re
 from typing import Generator
 
 
-
 APACHE_PATTERN = re.compile(
     r'(?P<ip>\d{1,3}(?:\.\d{1,3}){3})'
     r'.*\[(?P<date>[^\]]+)\] '
     r'"(?P<method>\S+) (?P<path>\S+) [^"]+" '
     r'(?P<status>\d{3}) (?P<size>\d+)'
 )
+
 
 def read_stream(file_path: str) -> Generator[str, None, None]:
     """Read a log file one line at a time."""
@@ -22,6 +22,7 @@ def read_stream(file_path: str) -> Generator[str, None, None]:
                 yield line
     except FileNotFoundError:
         print(f"[ERROR] File not found: {file_path}")
+
 
 def parse_apache_line(line: str) -> dict:
     """Parse an Apache log line and return its fields."""
@@ -42,7 +43,6 @@ def main() -> None:
     print("[*] LogHunter - Log Analysis Engine")
     print(f"[*] Reading: {args.file}")
     print("--- Parsing ---")
-
 
     apache_count = 0
     syslog_count = 0
