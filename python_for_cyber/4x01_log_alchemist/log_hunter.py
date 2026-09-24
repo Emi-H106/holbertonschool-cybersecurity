@@ -47,7 +47,7 @@ def main() -> None:
     apache_count = 0
     syslog_count = 0
 
-    for line read_stream(args.file):
+    for line in read_stream(args.file):
         parsed = parse_apache_line(line)
 
         if parsed:
