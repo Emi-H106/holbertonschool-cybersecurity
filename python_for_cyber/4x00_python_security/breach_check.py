@@ -6,7 +6,7 @@ import configparser
 import logging
 import sys
 
-from utils import clean_data, validate_line, hash_password
+from utils import read_file, clean_data, validate_line, hash_password
 
 
 def setup_logging():
@@ -27,19 +27,6 @@ def setup_logging():
 
     logging.getLogger().addHandler(console_handler)
     logging.getLogger().addHandler(file_handler)
-
-
-def read_file(filename: str) -> list:
-    """Read a file safely and return its lines as a list."""
-    try:
-        with open(filename, "r") as file:
-            return file.readlines()
-    except FileNotFoundError:
-        logging.error("File not found: %s", filename)
-        sys.exit(1)
-    except PermissionError:
-        logging.error("Permission denied: %s", filename)
-        sys.exit(1)
 
 
 def check_policy(password: str) -> str:
