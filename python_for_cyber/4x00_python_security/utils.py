@@ -6,6 +6,7 @@ import re
 import logging
 import sys
 
+
 def read_file(filename: str) -> list:
     """Read a file safely and return its lines as a list."""
     try:
