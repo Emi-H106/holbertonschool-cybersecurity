@@ -4,6 +4,7 @@
 import argparse
 from typing import Generator
 
+
 def read_stream(file_path: str) -> Generator[str, None, None]:
     """Read a log file one line at a time."""
     try:
