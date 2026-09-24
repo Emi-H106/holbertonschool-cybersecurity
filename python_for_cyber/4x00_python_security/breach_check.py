@@ -29,7 +29,7 @@ def setup_logging():
     logging.getLogger().addHandler(file_handler)
 
 
-def check_policy(password: str) -> str:
+def check_policy(password: str, min_length: int) -> str:
     """Return WEAK or COMPLIANT based on the password policy."""
     common_passwords = ["password", "123456"]
 
@@ -37,6 +37,9 @@ def check_policy(password: str) -> str:
         return "WEAK"
 
     if password.isalpha():
+        return "WEAK"
+
+    if password.isdigit():
         return "WEAK"
 
     if password in common_passwords:
@@ -105,7 +108,7 @@ def main():
 
     for line in valid_lines:
         email, password = line.split(":", 1)
-        status = check_policy(password)
+        status = check_policy(password, min_length)
 
         logging.info("%s: %s", email, status)
 
