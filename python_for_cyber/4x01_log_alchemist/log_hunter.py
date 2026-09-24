@@ -13,6 +13,13 @@ APACHE_PATTERN = re.compile(
     r'(?P<status>\d{3}) (?P<size>\d+)'
 )
 
+SYSLOG_PATTERN = re.compile(
+    r'(?P<date>[A-Z][a-z]{2}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+'
+    r'(?P<host>\S+)\s+'
+    r'(?P<process>[^:]+):\s*'
+    r'(?P<message>.*)'
+)
+
 
 def read_stream(file_path: str) -> Generator[str, None, None]:
     """Read a log file one line at a time."""
@@ -27,6 +34,16 @@ def read_stream(file_path: str) -> Generator[str, None, None]:
 def parse_apache_line(line: str) -> dict:
     """Parse an Apache log line and return its fields."""
     match = APACHE_PATTERN.search(line)
+
+    if not match:
+        return None
+
+    return match.groupdict()
+
+
+def parse_syslog_line(line: str) -> dict:
+    """Parse a Syslog line and return its fields."""
+    match = SYSLOG_PATTERN.search(line)
 
     if not match:
         return None
@@ -52,6 +69,12 @@ def main() -> None:
 
         if parsed:
             apache_count += 1
+
+        else:
+            syslog_parsed = parse_syslog_line(line)
+
+            if syslog_parsed:
+                syslog_count += 1
 
     total_parsed = apache_count + syslog_count
 
