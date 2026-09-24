@@ -5,6 +5,7 @@ import hashlib
 import re
 import logging
 
+
 def clean_data(lines: list) -> list:
     """Clean raw input lines and return valid data."""
     clean_lines = []
