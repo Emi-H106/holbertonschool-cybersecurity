@@ -3,6 +3,7 @@
 
 import argparse
 import re
+from collections import Counter
 from typing import Generator
 
 
@@ -225,6 +226,30 @@ def detect_xss(log_entry):
     return log_entry
 
 
+def detect_bruteforce(entries):
+    """Detect brute force authentication attempts."""
+    failures = Counter()
+
+    for entry in entries:
+        ip = getattr(entry, "ip", "")
+        status = getattr(entry, "status", None)
+        message = getattr(entry, "message", "")
+
+        if not ip:
+            continue
+
+        if status == 401 or "Failed password" in message:
+            failures[ip] += 1
+
+    for ip, count in failures.items():
+        if count > 5:
+            yield {
+                "ip": ip,
+                "count": count,
+                "alert_type": "BRUTE_FORCE"
+            }
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -364,6 +389,21 @@ def main() -> None:
 
     print(f"[*] SQLi attempts: {sqli_count}")
     print("[*] XSS attempts:  0")
+
+    print("--- Brute Force ---")
+
+    brute_force_alerts = list(detect_bruteforce(entries))
+
+    print(
+        f"[*] BRUTE_FORCE alerts: "
+        f"{len(brute_force_alerts)}"
+    )
+
+    for alert in brute_force_alerts:
+        print(
+            f"    {alert['ip']}: "
+            f"{alert['count']} failures"
+        )
 
 
 if __name__ == "__main__":
