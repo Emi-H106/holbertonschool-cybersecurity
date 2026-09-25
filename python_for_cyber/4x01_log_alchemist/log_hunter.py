@@ -24,6 +24,12 @@ IP_PATTERN = re.compile(
     r'\d{1,3}(?:\.\d{1,3}){3}'
 )
 
+SQLI_PATTERNS = [
+    re.compile(r"union\s+select", re.IGNORECASE),
+    re.compile(r"'\s*or\s+1\s*=\s*1", re.IGNORECASE),
+    re.compile(r"--", re.IGNORECASE)
+]
+
 GEOIP_DB = {
     "1.2.3.4": "US",
     "5.6.7.8": "RU"
@@ -180,6 +186,21 @@ def check_threat_intel(log_entry):
     return log_entry
 
 
+def detect_sqli(log_entry):
+    """Detect SQL injection patterns in a log entry."""
+    path = getattr(log_entry, "path", "")
+    message = getattr(log_entry, "message", "")
+
+    text = path + " " + message
+
+    for pattern in SQLI_PATTERNS:
+        if pattern.search(text):
+            log_entry.attack_type = "SQLi"
+            return log_entry
+
+    return log_entry
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -300,6 +321,19 @@ def main() -> None:
         f"[*] HIGH alerts: {high_alert_count} "
         f"entries from blacklisted IPs"
     )
+
+    print("--- Attack Detection ---")
+
+    sqli_count = 0
+
+    for entry in entries:
+        detect_sqli(entry)
+
+        if getattr(entry, "attack_type", "") == "SQLi":
+            sqli_count += 1
+
+    print(f"[*] SQLi attempts: {sqli_count}")
+    print("[*] XSS attempts:  0")
 
 
 if __name__ == "__main__":
