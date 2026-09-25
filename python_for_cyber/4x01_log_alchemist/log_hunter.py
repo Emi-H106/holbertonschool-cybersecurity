@@ -39,7 +39,11 @@ class LogEntry:
         timestamp: str,
         service: str,
         message: str,
-        raw_line: str
+        raw_line: str,
+        method: str = "",
+        path: str = "",
+        status=None,
+        user_agent: str = ""
     ):
         """Initialize a log entry."""
         self.ip = ip
@@ -47,6 +51,10 @@ class LogEntry:
         self.service = service
         self.message = message
         self.raw_line = raw_line
+        self.method = method
+        self.path = path
+        self.status = status
+        self.user_agent = user_agent
 
 
 def read_stream(file_path: str) -> Generator[str, None, None]:
@@ -86,20 +94,17 @@ def normalize_entry(
 ) -> LogEntry:
     """Normalize parsed log data into a LogEntry."""
     if log_type == "apache":
-        entry = LogEntry(
+        return LogEntry(
             ip=parsed_dict.get("ip", ""),
             timestamp=parsed_dict.get("date", ""),
             service="http",
             message=raw_line.strip(),
-            raw_line=raw_line.strip()
+            raw_line=raw_line.strip(),
+            method=parsed_dict.get("method", ""),
+            path=parsed_dict.get("path", ""),
+            status=int(parsed_dict.get("status", 0)),
+            user_agent=parsed_dict.get("user_agent", "")
         )
-
-        entry.method = parsed_dict.get("method", "")
-        entry.path = parsed_dict.get("path", "")
-        entry.status = int(parsed_dict.get("status", 0))
-        entry.user_agent = parsed_dict.get("user_agent", "")
-
-        return entry
 
     if log_type == "syslog":
         message = parsed_dict.get("message", "")
@@ -176,11 +181,13 @@ def main() -> None:
 
         if apache_parsed:
             apache_count += 1
+
             entry = normalize_entry(
                 apache_parsed,
                 "apache",
                 line
             )
+
             entries.append(entry)
 
             if sample_entry is None:
@@ -191,11 +198,13 @@ def main() -> None:
 
             if syslog_parsed:
                 syslog_count += 1
+
                 entry = normalize_entry(
                     syslog_parsed,
                     "syslog",
                     line
                 )
+
                 entries.append(entry)
 
                 if sample_entry is None:
@@ -256,9 +265,9 @@ def main() -> None:
         f"[*] GeoIP: {len(entries)} entries enriched "
         f"({known_count} known IPs)"
     )
-
     print(f"[*] Bots detected: {bot_count}")
 
 
 if __name__ == "__main__":
     main()
+    
