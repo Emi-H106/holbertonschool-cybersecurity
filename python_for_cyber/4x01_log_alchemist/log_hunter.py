@@ -221,6 +221,7 @@ def detect_xss(log_entry):
 
     return log_entry
 
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
