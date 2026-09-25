@@ -24,6 +24,7 @@ IP_PATTERN = re.compile(
     r'\d{1,3}(?:\.\d{1,3}){3}'
 )
 
+
 class LogEntry:
     """Represent a normalized log entry."""
 
@@ -71,6 +72,7 @@ def parse_syslog_line(line: str) -> dict:
         return None
 
     return match.groupdict()
+
 
 def normalize_entry(
     parsed_dict: dict,
