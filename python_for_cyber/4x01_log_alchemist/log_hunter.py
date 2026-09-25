@@ -286,7 +286,6 @@ def main() -> None:
     )
     print(f"[*] Bots detected: {bot_count}")
 
-
     print("--- Threat Intelligence ---")
 
     high_alert_count = 0
