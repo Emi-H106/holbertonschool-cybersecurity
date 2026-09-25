@@ -62,7 +62,8 @@ class LogEntry:
         status=None,
         size=None,
         user_agent: str = "",
-        source: str = ""
+        source: str = "",
+        attack_type: str = "",
     ):
         """Initialize a log entry."""
         self.ip = ip
@@ -76,6 +77,7 @@ class LogEntry:
         self.size = size
         self.user_agent = user_agent
         self.source = source
+        self.attack_type = attack_type
 
 
 def read_stream(file_path: str) -> Generator[str, None, None]:
