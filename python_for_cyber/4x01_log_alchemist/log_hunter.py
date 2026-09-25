@@ -35,11 +35,11 @@ class LogEntry:
 
     def __init__(
         self,
-        ip: str,
-        timestamp: str,
-        service: str,
-        message: str,
-        raw_line: str,
+        ip: str = "",
+        timestamp: str = "",
+        service: str = "",
+        message: str = "",
+        raw_line: str = "",
         method: str = "",
         path: str = "",
         status=None,
