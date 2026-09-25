@@ -24,6 +24,11 @@ IP_PATTERN = re.compile(
     r'\d{1,3}(?:\.\d{1,3}){3}'
 )
 
+GEOIP_DB = {
+    "1.2.3.4": "US",
+    "5.6.7.8": "RU"
+}
+
 
 class LogEntry:
     """Represent a normalized log entry."""
@@ -125,6 +130,12 @@ def filter_logs(stream, status_codes=[404, 500]):
             yield entry
 
 
+def enrich_ip(log_entry):
+    """Add country information to a log entry."""
+    log_entry.country = GEOIP_DB.get(log_entry.ip, "UNKNOWN")
+    return log_entry
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -205,6 +216,21 @@ def main() -> None:
         suspicious_count += 1
 
     print(f"[*] Suspicious (404, 500): {suspicious_count}")
+
+    print("--- Enrichment ---")
+
+    known_count = 0
+
+    for entry in entries:
+        enrich_ip(entry)
+
+        if entry.country != "UNKNOWN":
+            known_count += 1
+
+    print(
+        f"[*] GeoIP: {len(entries)} entries enriched "
+        f"({known_count} known IPs)"
+    )
 
 
 if __name__ == "__main__":
