@@ -43,6 +43,7 @@ class LogEntry:
         method: str = "",
         path: str = "",
         status=None,
+        size=None,
         user_agent: str = ""
     ):
         """Initialize a log entry."""
@@ -54,6 +55,7 @@ class LogEntry:
         self.method = method
         self.path = path
         self.status = status
+        self.size = size
         self.user_agent = user_agent
 
 
