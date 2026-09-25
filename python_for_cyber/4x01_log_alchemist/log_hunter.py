@@ -116,6 +116,15 @@ def normalize_entry(
     return None
 
 
+def filter_logs(stream, status_codes=[404, 500]):
+    """Yield log entries matching specified status codes."""
+    for entry in stream:
+        status = getattr(entry, "status", None)
+
+        if status in status_codes:
+            yield entry
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -129,6 +138,7 @@ def main() -> None:
     apache_count = 0
     syslog_count = 0
     sample_entry = None
+    entries = []
 
     for line in read_stream(args.file):
         apache_parsed = parse_apache_line(line)
@@ -140,6 +150,7 @@ def main() -> None:
                 "apache",
                 line
             )
+            entries.append(entry)
 
             if sample_entry is None:
                 sample_entry = entry
@@ -154,6 +165,7 @@ def main() -> None:
                     "syslog",
                     line
                 )
+                entries.append(entry)
 
                 if sample_entry is None:
                     sample_entry = entry
@@ -184,6 +196,15 @@ def main() -> None:
                 f"service={sample_entry.service} | "
                 f"message={sample_entry.message}"
             )
+
+    print("--- Filtering ---")
+
+    suspicious_count = 0
+
+    for entry in filter_logs(entries):
+        suspicious_count += 1
+
+    print(f"[*] Suspicious (404, 500): {suspicious_count}")
 
 
 if __name__ == "__main__":
