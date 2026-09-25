@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import multiprocessing
 import re
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -355,6 +356,64 @@ def export_report(alerts, filename, format="json"):
             json.dump(report_data, file, indent=2)
 
 
+def process_chunk(lines):
+    """Process a chunk of raw log lines."""
+    results = []
+
+    for line in lines:
+        parsed = parse_apache_line(line)
+        log_type = "apache"
+
+        if parsed is None:
+            parsed = parse_syslog_line(line)
+            log_type = "syslog"
+
+        if parsed is None:
+            continue
+
+        entry = normalize_entry(
+            parsed,
+            log_type,
+            line
+        )
+
+        enrich_ip(entry)
+        analyze_user_agent(entry)
+        check_threat_intel(entry)
+        detect_sqli(entry)
+        detect_xss(entry)
+
+        results.append(entry)
+
+    return results
+
+
+def parallel_analyze(file_path, num_workers, chunk_size=1000):
+    """Analyze a log file using multiple processes."""
+    chunks = []
+    chunk = []
+
+    for line in read_stream(file_path):
+        chunk.append(line)
+
+        if len(chunk) >= chunk_size:
+            chunks.append(chunk)
+            chunk = []
+
+    if chunk:
+        chunks.append(chunk)
+
+    with multiprocessing.Pool(num_workers) as pool:
+        chunk_results = pool.map(process_chunk, chunks)
+
+    results = []
+
+    for result in chunk_results:
+        results.extend(result)
+
+    return results
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -363,10 +422,31 @@ def main() -> None:
         "--report",
         help="Export alerts to a JSON report"
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=0,
+        help="Number of parallel workers"
+    )
     args = parser.parse_args()
 
     print("[*] LogHunter - Log Analysis Engine")
-    print(f"[*] Reading: {args.file}")
+
+    if args.workers > 0:
+        print(
+            f"[*] Reading: {args.file} "
+            f"(parallel: {args.workers} workers)"
+        )
+
+        entries = parallel_analyze(
+            args.file,
+            args.workers,
+            1000
+        )
+
+    else:
+        print(f"[*] Reading: {args.file}")
+
     print("--- Parsing ---")
 
     apache_count = 0
