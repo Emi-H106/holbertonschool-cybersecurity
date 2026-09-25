@@ -311,6 +311,34 @@ def detect_burst(entries, window_seconds=60, threshold=10):
             alerted_ips.add(ip)
 
 
+def correlate_events(entries):
+    """Correlate scanner and SQLi activity by IP."""
+    states = defaultdict(set)
+
+    for entry in entries:
+        ip = getattr(entry, "ip", "")
+        status = getattr(entry, "status", None)
+        attack_type = getattr(entry, "attack_type", "")
+
+        if not ip:
+            continue
+
+        if status == 404 or status == "404":
+            states[ip].add("scanner")
+
+        if attack_type == "SQLi":
+            states[ip].add("sqli")
+
+        if "scanner" in states[ip] and "sqli" in states[ip]:
+            yield {
+                "ip": ip,
+                "stages": ["scanner", "sqli"],
+                "alert_type": "CRITICAL INCIDENT"
+            }
+
+            states[ip].clear()
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -477,6 +505,19 @@ def main() -> None:
             f"    {alert['ip']}: "
             f"{alert['count']} requests in "
             f"{alert['window']}s window"
+        )
+
+
+    print("--- Correlation ---")
+
+    critical_incidents = list(correlate_events(entries))
+
+    print("[*] CRITICAL INCIDENTS:")
+
+    for incident in critical_incidents:
+        print(
+            f"    {incident['ip']}: "
+            f"{' -> '.join(incident['stages'])}"
         )
 
 
