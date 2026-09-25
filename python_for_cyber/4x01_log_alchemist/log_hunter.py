@@ -3,7 +3,8 @@
 
 import argparse
 import re
-from collections import Counter
+from collections import Counter, defaultdict
+from datetime import datetime
 from typing import Generator
 
 
@@ -253,6 +254,63 @@ def detect_bruteforce(entries):
             }
 
 
+def parse_timestamp(timestamp):
+    """Parse Apache or Syslog timestamp."""
+    try:
+        return datetime.strptime(
+            timestamp,
+            "%d/%b/%Y:%H:%M:%S %z"
+        )
+    except ValueError:
+        pass
+
+    try:
+        return datetime.strptime(
+            timestamp,
+            "%b %d %H:%M:%S"
+        )
+    except ValueError:
+        return None
+
+
+def detect_burst(entries, window_seconds=60, threshold=10):
+    """Detect bursts of requests from the same IP."""
+    windows = defaultdict(list)
+    alerted_ips = set()
+
+    for entry in entries:
+        ip = getattr(entry, "ip", "")
+        timestamp = getattr(entry, "timestamp", "")
+
+        if not ip or not timestamp:
+            continue
+
+        current_time = parse_timestamp(timestamp)
+
+        if current_time is None:
+            continue
+
+        windows[ip].append(current_time)
+
+        windows[ip] = [
+            time for time in windows[ip]
+            if (current_time - time).total_seconds() <= window_seconds
+        ]
+
+        if (
+            len(windows[ip]) >= threshold
+            and ip not in alerted_ips
+        ):
+            yield {
+                "ip": ip,
+                "count": len(windows[ip]),
+                "window": window_seconds,
+                "alert_type": "BURST"
+            }
+
+            alerted_ips.add(ip)
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -406,6 +464,19 @@ def main() -> None:
         print(
             f"    {alert['ip']}: "
             f"{alert['count']} failures"
+        )
+
+    print("--- Burst Detection ---")
+
+    burst_alerts = list(detect_burst(entries))
+
+    print(f"[*] BURST alerts: {len(burst_alerts)}")
+
+    for alert in burst_alerts:
+        print(
+            f"    {alert['ip']}: "
+            f"{alert['count']} requests in "
+            f"{alert['window']}s window"
         )
 
 
