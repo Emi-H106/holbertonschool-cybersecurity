@@ -238,7 +238,10 @@ def detect_bruteforce(entries):
         if not ip:
             continue
 
-        if str(status) == 401 or "Failed password" in message:
+        is_http_failure = status == 401 or status == "401"
+        is_ssh_failure = "failed password" in message.lower()
+
+        if is_http_failure or is_ssh_failure:
             failures[ip] += 1
 
     for ip, count in failures.items():
