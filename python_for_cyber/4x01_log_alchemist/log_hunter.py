@@ -238,7 +238,7 @@ def detect_bruteforce(entries):
         if not ip:
             continue
 
-        if status == 401 or "Failed password" in message:
+        if str(status) == 401 or "Failed password" in message:
             failures[ip] += 1
 
     for ip, count in failures.items():
