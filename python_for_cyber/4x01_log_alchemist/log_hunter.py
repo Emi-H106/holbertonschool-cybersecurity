@@ -29,6 +29,11 @@ GEOIP_DB = {
     "5.6.7.8": "RU"
 }
 
+BLACKLIST = {
+    "10.0.0.1",
+    "192.168.1.66"
+}
+
 
 class LogEntry:
     """Represent a normalized log entry."""
@@ -165,6 +170,16 @@ def analyze_user_agent(log_entry):
     return log_entry
 
 
+def check_threat_intel(log_entry):
+    """Check an IP address against the threat blacklist."""
+    if log_entry.ip in BLACKLIST:
+        log_entry.alert_level = "HIGH"
+    else:
+        log_entry.alert_level = "LOW"
+
+    return log_entry
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -270,6 +285,22 @@ def main() -> None:
         f"({known_count} known IPs)"
     )
     print(f"[*] Bots detected: {bot_count}")
+
+
+    print("--- Threat Intelligence ---")
+
+    high_alert_count = 0
+
+    for entry in entries:
+        check_threat_intel(entry)
+
+        if entry.alert_level == "HIGH":
+            high_alert_count += 1
+
+    print(
+        f"[*] HIGH alerts: {high_alert_count} "
+        f"entries from blacklisted IPs"
+    )
 
 
 if __name__ == "__main__":
