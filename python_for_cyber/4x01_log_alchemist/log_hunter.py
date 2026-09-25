@@ -136,6 +136,26 @@ def enrich_ip(log_entry):
     return log_entry
 
 
+def analyze_user_agent(log_entry):
+    """Detect bot or automated tool signatures."""
+    signatures = ["sqlmap", "nikto", "curl", "python"]
+
+    text = (
+        getattr(log_entry, "user_agent", "") + " "
+        + getattr(log_entry, "message", "") + " "
+        + getattr(log_entry, "raw_line", "")
+    ).lower()
+
+    log_entry.is_bot = False
+
+    for signature in signatures:
+        if signature in text:
+            log_entry.is_bot = True
+            break
+
+    return log_entry
+
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -220,17 +240,24 @@ def main() -> None:
     print("--- Enrichment ---")
 
     known_count = 0
+    bot_count = 0
 
     for entry in entries:
         enrich_ip(entry)
+        analyze_user_agent(entry)
 
         if entry.country != "UNKNOWN":
             known_count += 1
+
+        if entry.is_bot:
+            bot_count += 1
 
     print(
         f"[*] GeoIP: {len(entries)} entries enriched "
         f"({known_count} known IPs)"
     )
+
+    print(f"[*] Bots detected: {bot_count}")
 
 
 if __name__ == "__main__":
