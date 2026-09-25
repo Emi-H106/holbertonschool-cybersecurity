@@ -507,7 +507,6 @@ def main() -> None:
             f"{alert['window']}s window"
         )
 
-
     print("--- Correlation ---")
 
     critical_incidents = list(correlate_events(entries))
