@@ -30,6 +30,12 @@ SQLI_PATTERNS = [
     re.compile(r"--", re.IGNORECASE)
 ]
 
+XSS_PATTERNS = [
+    re.compile(r"<script", re.IGNORECASE),
+    re.compile(r"javascript:", re.IGNORECASE),
+    re.compile(r"onload\s*=", re.IGNORECASE)
+]
+
 GEOIP_DB = {
     "1.2.3.4": "US",
     "5.6.7.8": "RU"
@@ -201,6 +207,20 @@ def detect_sqli(log_entry):
     return log_entry
 
 
+def detect_xss(log_entry):
+    """Detect XSS patterns in a log entry."""
+    if getattr(log_entry, "attack_type", "") == "SQLi":
+        return log_entry
+
+    path = getattr(log_entry, "path", "")
+
+    for pattern in XSS_PATTERNS:
+        if pattern.search(path):
+            log_entry.attack_type = "XSS"
+            return log_entry
+
+    return log_entry
+
 def main() -> None:
     """Run the LogHunter command-line interface."""
     parser = argparse.ArgumentParser()
@@ -325,12 +345,18 @@ def main() -> None:
     print("--- Attack Detection ---")
 
     sqli_count = 0
+    xss_count = 0
 
     for entry in entries:
         detect_sqli(entry)
+        detect_xss(entry)
 
-        if getattr(entry, "attack_type", "") == "SQLi":
+        attack_type = getattr(entry, "attack_type", "")
+
+        if attack_type == "SQLi":
             sqli_count += 1
+        elif attack_type == "XSS":
+            xss_count += 1
 
     print(f"[*] SQLi attempts: {sqli_count}")
     print("[*] XSS attempts:  0")
