@@ -18,11 +18,25 @@ def check_port(ip: str, port: int) -> bool:
         sock.close()
 
 
+def ping_sweep(subnet: str) -> list:
+    """Scan port 80 on all hosts in a /24 subnet."""
+    live_ips = []
+
+    for host in range(1, 255):
+        ip = f"{subnet}.{host}"
+
+        if check_port(ip, 80):
+            live_ips.append(ip)
+
+    return live_ips
+
+
 def main() -> None:
     """Initialize the NetProbe application."""
     print("NetProbe v1.0 initialized...")
     print(f"Port 80 is open: {check_port('google.com', 80)}")
     print(f"Port 81 is open: {check_port('google.com', 81)}")
+    print(ping_sweep("192.168.1"))
 
 
 if __name__ == "__main__":
