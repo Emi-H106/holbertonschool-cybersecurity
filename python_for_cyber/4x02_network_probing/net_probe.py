@@ -1,12 +1,29 @@
 #!/usr/bin/env python3
 """NetProbe network scanning tool."""
 
+import socket
+
+
+def check_port(ip: str, port: int) -> bool:
+    """Check whether a TCP port is open on the target."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+
+    try:
+        sock.connect((ip, port))
+        return True
+    except (ConnectionRefusedError, socket.timeout):
+        return False
+    finally:
+        sock.close()
+
 
 def main() -> None:
     """Initialize the NetProbe application."""
     print("NetProbe v1.0 initialized...")
+    print(f"Port 80 is open: {check_port('google.com', 80)}")
+    print(f"Port 81 is open: {check_port('google.com', 81)}")
 
 
 if __name__ == "__main__":
     main()
-    
