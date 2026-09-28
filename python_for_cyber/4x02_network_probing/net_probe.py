@@ -12,7 +12,7 @@ def check_port(ip: str, port: int) -> bool:
     try:
         sock.connect((ip, port))
         return True
-    except (ConnectionRefusedError, socket.timeout):
+    except (ConnectionRefusedError, socket.timeout, socket.gaierror):
         return False
     finally:
         sock.close()
