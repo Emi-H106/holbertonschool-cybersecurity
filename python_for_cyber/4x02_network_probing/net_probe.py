@@ -70,7 +70,8 @@ def get_banner(ip: str, port: int, local_ip: str = None) -> str:
 def scan_single_port(
     ip: str,
     port: int,
-    delay: float = 0.0
+    delay: float = 0.0,
+    local_ip: str = None
 ):
     """Scan a single TCP port and return its information."""
     if delay > 0:
@@ -115,7 +116,7 @@ def scan_ports(
         futures = []
 
         for port in ports:
-            future = executor.submit(scan_single_port, ip, port, delay)
+            future = executor.submit(scan_single_port, ip, port, delay, local_ip)
             futures.append(future)
 
         for future in as_completed(futures):
@@ -254,7 +255,8 @@ def main() -> None:
         start_port,
         end_port,
         delay=args.delay,
-        randomize=args.random
+        randomize=args.random,
+        local_ip=args.interface
     )
 
     if args.output:
