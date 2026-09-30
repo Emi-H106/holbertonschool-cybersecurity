@@ -60,7 +60,12 @@ def get_banner(ip: str, port: int) -> str:
         sock.close()
 
 
-def scan_ports(ip: str, start_port: int, end_port: int) -> list:
+def scan_ports(
+    ip: str,
+    start_port: int,
+    end_port: int,
+    delay: float = 0.0
+) -> list:
     """Scan a range of TCP ports on a target."""
     results = []
 
@@ -82,6 +87,11 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
 
 def scan_single_port(ip: str, port: int):
     """Scan a single TCP port and return its information."""
+    if delay > 0:
+        print(
+            f"[DEBUG] Sleeping {delay}s before next packet..."
+        )
+        time.sleep(delay)
 
     if check_port(ip, port):
         banner = get_banner(ip, port)
@@ -195,16 +205,11 @@ def main() -> None:
 
     start_port, end_port = map(int, args.ports.split("-"))
 
-    if args.delay > 0:
-        print(
-            f"[DEBUG] Sleeping {args.delay}s before next packet..."
-        )
-    time.sleep(args.delay)
-
     results = scan_ports(
         args.target,
         start_port,
-        end_port
+        end_port,
+        delay=args.delay
     )
 
     if args.output:
