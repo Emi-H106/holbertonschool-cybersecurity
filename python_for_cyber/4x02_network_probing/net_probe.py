@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """NetProbe network scanning tool."""
 
+import argparse
+import json
 import socket
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
@@ -84,8 +87,9 @@ def scan_single_port(ip: str, port: int):
 
         return {
             "port": port,
+            "state": "open",
             "service": banner,
-            "status": status
+            "vulnerability": "YES" if status else "NO"
         }
 
     return None
@@ -152,11 +156,44 @@ def check_vulnerability(banner: str) -> str:
 
 
 def main() -> None:
-    """Initialize the NetProbe application."""
-    print("NetProbe v1.0 initialized...")
-    print(f"Port 80 is open: {check_port('google.com', 80)}")
-    print(f"Port 81 is open: {check_port('google.com', 81)}")
-    print(ping_sweep("192.168.1"))
+    """Run NetProbe from the command line."""
+    parser = argparse.ArgumentParser(
+        description="Scan TCP ports on a target."
+    )
+
+    parser.add_argument(
+        "-t",
+        "--target",
+        required=True,
+        help="Target IP address"
+    )
+
+    parser.add_argument(
+        "-p",
+        "--ports",
+        required=True,
+        help="Port range, for example 1-1000"
+    )
+
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Output JSON file"
+    )
+
+    args = parser.parse_args()
+
+    start_port, end_port = map(int, args.ports.split("-"))
+
+    results = scan_ports(
+        args.target,
+        start_port,
+        end_port
+    )
+
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as file:
+            json.dump(results, file, indent=2)
 
 
 if __name__ == "__main__":
