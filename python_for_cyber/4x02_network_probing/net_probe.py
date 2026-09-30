@@ -174,6 +174,15 @@ def scan_udp(ip: str, port: int) -> bool:
         sock.close()
 
 
+def resolve_hostname(ip: str) -> str:
+    """Resolve a hostname from an IP address."""
+    try:
+        hostname = socket.gethostbyaddr(ip)[0]
+        return hostname
+    except socket.herror:
+        return "Unknown"
+
+
 def main() -> None:
     """Run NetProbe from the command line."""
     parser = argparse.ArgumentParser(
@@ -218,6 +227,10 @@ def main() -> None:
     args = parser.parse_args()
 
     start_port, end_port = map(int, args.ports.split("-"))
+
+    hostname = resolve_hostname(args.target)
+    print(f"Target: {args.target} ({hostname})")
+
 
     results = scan_ports(
         args.target,
