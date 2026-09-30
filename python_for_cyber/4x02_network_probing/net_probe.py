@@ -231,7 +231,6 @@ def main() -> None:
     hostname = resolve_hostname(args.target)
     print(f"Target: {args.target} ({hostname})")
 
-
     results = scan_ports(
         args.target,
         start_port,
