@@ -40,12 +40,15 @@ def ping_sweep(subnet: str) -> list:
     return live_ips
 
 
-def get_banner(ip: str, port: int) -> str:
+def get_banner(ip: str, port: int, local_ip: str = None) -> str:
     """Retrieve a service banner from an open TCP port."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(1)
 
     try:
+        if local_ip:
+            sock.bind((local_ip, 0))
+
         sock.connect((ip, port))
 
         if port != 22:
@@ -160,12 +163,15 @@ def check_vulnerability(banner: str) -> str:
     return ""
 
 
-def scan_udp(ip: str, port: int) -> bool:
+def scan_udp(ip: str, port: int, local_ip: str = None) -> bool:
     """Check whether a UDP port is open or filtered."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.settimeout(1)
 
     try:
+        if local_ip:
+            sock.bind((local_ip, 0))
+
         sock.sendto(b"", (ip, port))
         sock.recvfrom(1024)
         return True
