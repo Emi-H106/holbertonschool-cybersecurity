@@ -80,9 +80,12 @@ def scan_single_port(ip: str, port: int):
     """Scan a single TCP port and return its information."""
     if check_port(ip, port):
         banner = get_banner(ip, port)
+        status = check_vulnerability(banner)
+
         return {
             "port": port,
             "service": banner
+            "status": status
         }
 
     return None
@@ -132,6 +135,20 @@ def guess_service(port: int) -> str:
         return f"{service} (Guessed)"
 
     return "Unknown"
+
+
+def check_vulnerability(banner: str) -> str:
+    """Check a banner for known vulnerable service versions."""
+    bad_signatures = [
+        "vsftpd 2.3.4",
+        "Apache 2.2.8"
+    ]
+
+    for signature in bad_signatures:
+        if signature.lower() in banner.lower():
+            return "[VULNERABLE]"
+
+    return ""
 
 
 def main() -> None:
