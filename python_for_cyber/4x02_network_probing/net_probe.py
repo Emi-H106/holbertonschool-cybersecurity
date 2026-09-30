@@ -31,6 +31,30 @@ def ping_sweep(subnet: str) -> list:
     return live_ips
 
 
+def get_banner(ip: str, port: int) -> str:
+    """Retrieve a service banner from an open TCP port."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+
+    try:
+        sock.connect((ip, port))
+
+        if port != 22:
+            sock.sendall(b"HEAD / HTTP/1.0\r\n\r\n")
+
+        data = sock.recv(1024)
+
+        if not data:
+            return "Unknown"
+
+        return data.decode(errors="ignore").strip()
+
+    except (OSError, socket.timeout):
+        return "Unknown"
+    finally:
+        sock.close()
+
+
 def main() -> None:
     """Initialize the NetProbe application."""
     print("NetProbe v1.0 initialized...")
