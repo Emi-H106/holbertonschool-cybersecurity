@@ -116,6 +116,24 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
     return results
 
 
+def guess_service(port: int) -> str:
+    """Guess the service name based on the port number."""
+    services = {
+        21: "FTP",
+        22: "SSH",
+        80: "HTTP",
+        443: "HTTPS",
+        3306: "MySQL"
+    }
+
+    service = services.get(port, "Unknown")
+
+    if service != "Unknown":
+        return f"{service} (Guessed)"
+
+    return "Unknown"
+
+
 def main() -> None:
     """Initialize the NetProbe application."""
     print("NetProbe v1.0 initialized...")
