@@ -10,12 +10,15 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
-def check_port(ip: str, port: int) -> bool:
+def check_port(ip: str, port: int, local_ip: str = None) -> bool:
     """Check whether a TCP port is open on the target."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(1)
 
     try:
+        if local_ip:
+            sock.bind((local_ip, 0))
+
         sock.connect((ip, port))
         return True
     except (ConnectionRefusedError, socket.timeout, socket.gaierror):
@@ -224,12 +227,21 @@ def main() -> None:
         help="Scan ports in random order"
     )
 
+    parser.add_argument(
+        "-i",
+        "--interface",
+        help="Local IP address to use as source"
+    )
+
     args = parser.parse_args()
 
     start_port, end_port = map(int, args.ports.split("-"))
 
     hostname = resolve_hostname(args.target)
     print(f"Target: {args.target} ({hostname})")
+
+    if args.interface:
+        print(f"[INFO] Scanning from source IP: {args.interface}")
 
     results = scan_ports(
         args.target,
