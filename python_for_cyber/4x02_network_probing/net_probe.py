@@ -61,32 +61,11 @@ def get_banner(ip: str, port: int) -> str:
         sock.close()
 
 
-def scan_ports(
-    ip: str,
-    start_port: int,
-    end_port: int,
+def scan_single_port(
+    ip: str, 
+    port: int, 
     delay: float = 0.0
-) -> list:
-    """Scan a range of TCP ports on a target."""
-    results = []
-
-    print(f"Scanning {ip} from {start_port} to {end_port}...")
-
-    for port in range(start_port, end_port + 1):
-        if check_port(ip, port):
-            banner = get_banner(ip, port)
-
-            results.append({
-                "port": port,
-                "service": banner
-            })
-
-            print(f"[+] Port {port} Open: {banner}")
-
-    return results
-
-
-def scan_single_port(ip: str, port: int):
+):
     """Scan a single TCP port and return its information."""
     if delay > 0:
         print(
@@ -108,16 +87,28 @@ def scan_single_port(ip: str, port: int):
     return None
 
 
-def scan_ports(ip: str, start_port: int, end_port: int) -> list:
+def scan_ports(
+    ip: str,
+    start_port: int, 
+    end_port: int,
+    delay: float = 0.0,
+    randomize: bool = False
+    ) -> list:
     """Scan a range of TCP ports using multiple threads."""
     results = []
 
-    print(f"Scanning {ip} from {start_port} to {end_port}...")
+    ports = list(range(start_port, end_port + 1))
+
+    if randomize:
+        print("Scanning ports randomly...")
+        random.shuffle(ports)
+    else:
+        print(f"Scanning {ip} from {start_port} to {end_port}...")
 
     with ThreadPoolExecutor(max_workers=50) as executor:
         futures = []
 
-        for port in range(start_port, end_port + 1):
+        for port in ports:
             future = executor.submit(scan_single_port, ip, port, delay)
             futures.append(future)
 
@@ -130,8 +121,6 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
                     f"[+] Port {result['port']} Open: "
                     f"{result['service']}"
                 )
-
-    results.sort(key=lambda item: item["port"])
 
     return results
 
@@ -217,7 +206,8 @@ def main() -> None:
         args.target,
         start_port,
         end_port,
-        delay=args.delay
+        delay=args.delay,
+        randomize=args.random
     )
 
     if args.output:
