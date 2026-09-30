@@ -62,8 +62,8 @@ def get_banner(ip: str, port: int) -> str:
 
 
 def scan_single_port(
-    ip: str, 
-    port: int, 
+    ip: str,
+    port: int,
     delay: float = 0.0
 ):
     """Scan a single TCP port and return its information."""
@@ -89,11 +89,11 @@ def scan_single_port(
 
 def scan_ports(
     ip: str,
-    start_port: int, 
+    start_port: int,
     end_port: int,
     delay: float = 0.0,
     randomize: bool = False
-    ) -> list:
+) -> list:
     """Scan a range of TCP ports using multiple threads."""
     results = []
 
