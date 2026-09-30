@@ -157,6 +157,23 @@ def check_vulnerability(banner: str) -> str:
     return ""
 
 
+def scan_udp(ip: str, port: int) -> bool:
+    """Check whether a UDP port is open or filtered."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(1)
+
+    try:
+        sock.sendto(b"", (ip, port))
+        sock.recvfrom(1024)
+        return True
+    except socket.timeout:
+        return True
+    except OSError:
+        return False
+    finally:
+        sock.close()
+
+
 def main() -> None:
     """Run NetProbe from the command line."""
     parser = argparse.ArgumentParser(
