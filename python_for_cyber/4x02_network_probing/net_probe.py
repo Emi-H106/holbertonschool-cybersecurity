@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import random
 import socket
 import time
 
@@ -199,6 +200,13 @@ def main() -> None:
         type=float,
         default=0,
         help="Delay between scan attempts"
+    )
+
+    parser.add_argument(
+        "-r",
+        "--random",
+        action="store_true",
+        help="Scan ports in random order"
     )
 
     args = parser.parse_args()
