@@ -80,12 +80,9 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
     return results
 
 
-def scan_single_port(ip: str, port: int, delay: float = 0):
+def scan_single_port(ip: str, port: int):
     """Scan a single TCP port and return its information."""
-    if SCAN_DELAY > 0:
-        print(f"[DEBUG] Sleeping {SCAN_DELAY}s before next packet...")
-        time.sleep(SCAN_DELAY)
-
+    
     if check_port(ip, port):
         banner = get_banner(ip, port)
         status = check_vulnerability(banner)
@@ -162,8 +159,6 @@ def check_vulnerability(banner: str) -> str:
 
 def main() -> None:
     """Run NetProbe from the command line."""
-    global SCAN_DELAY
-
     parser = argparse.ArgumentParser(
         description="Scan TCP ports on a target."
     )
@@ -198,9 +193,13 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    SCAN_DELAY = args.delay
-
     start_port, end_port = map(int, args.ports.split("-"))
+
+    if args.delay > 0:
+        print(
+            f"[DEBUG] Sleeping {args.delay}s before next packet..."
+        )
+    time.sleep(args.delay)
 
     results = scan_ports(
         args.target,
