@@ -82,7 +82,7 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
 
 def scan_single_port(ip: str, port: int):
     """Scan a single TCP port and return its information."""
-    
+
     if check_port(ip, port):
         banner = get_banner(ip, port)
         status = check_vulnerability(banner)
