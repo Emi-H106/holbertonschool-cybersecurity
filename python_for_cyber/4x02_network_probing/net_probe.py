@@ -2,6 +2,7 @@
 """NetProbe network scanning tool."""
 
 import socket
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 def check_port(ip: str, port: int) -> bool:
@@ -71,6 +72,46 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
             })
 
             print(f"[+] Port {port} Open: {banner}")
+
+    return results
+
+
+def scan_single_port(ip: str, port: int):
+    """Scan a single TCP port and return its information."""
+    if check_port(ip, port):
+        banner = get_banner(ip, port)
+        return {
+            "port": port,
+            "service": banner
+        }
+
+    return None
+
+
+def scan_ports(ip: str, start_port: int, end_port: int) -> list:
+    """Scan a range of TCP ports using multiple threads."""
+    results = []
+
+    print(f"Scanning {ip} from {start_port} to {end_port}...")
+
+    with ThreadPoolExecutor(max_workers=50) as executor:
+        futures = []
+
+        for port in range(start_port, end_port + 1):
+            future = executor.submit(scan_single_port, ip, port)
+            futures.append(future)
+
+        for future in as_completed(futures):
+            result = future.result()
+
+            if result:
+                results.append(result)
+                print(
+                    f"[+] Port {result['port']} Open: "
+                    f"{result['service']}"
+                )
+
+    results.sort(key=lambda item: item["port"])
 
     return results
 
