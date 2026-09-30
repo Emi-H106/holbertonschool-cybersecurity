@@ -55,6 +55,26 @@ def get_banner(ip: str, port: int) -> str:
         sock.close()
 
 
+def scan_ports(ip: str, start_port: int, end_port: int) -> list:
+    """Scan a range of TCP ports on a target."""
+    results = []
+
+    print(f"Scanning {ip} from {start_port} to {end_port}...")
+
+    for port in range(start_port, end_port + 1):
+        if check_port(ip, port):
+            banner = get_banner(ip, port)
+
+            results.append({
+                "port": port,
+                "service": banner
+            })
+
+            print(f"[+] Port {port} Open: {banner}")
+
+    return results
+
+
 def main() -> None:
     """Initialize the NetProbe application."""
     print("NetProbe v1.0 initialized...")
