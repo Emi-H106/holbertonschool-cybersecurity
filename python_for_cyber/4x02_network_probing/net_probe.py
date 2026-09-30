@@ -80,9 +80,9 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
     return results
 
 
-def scan_single_port(ip: str, port: int, delay: float = 0 ):
+def scan_single_port(ip: str, port: int, delay: float = 0):
     """Scan a single TCP port and return its information."""
-     if delay > 0:
+    if delay > 0:
         print(f"[DEBUG] Sleeping {delay}s before next packet...")
         time.sleep(delay)
 
@@ -100,7 +100,12 @@ def scan_single_port(ip: str, port: int, delay: float = 0 ):
     return None
 
 
-def scan_ports(ip: str, start_port: int, end_port: int) -> list:
+def scan_ports(
+    ip: str,
+    start_port: int,
+    end_port: int,
+    delay: float = 0
+) -> list:
     """Scan a range of TCP ports using multiple threads."""
     results = []
 
@@ -110,7 +115,7 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
         futures = []
 
         for port in range(start_port, end_port + 1):
-            future = executor.submit(scan_single_port, ip, port)
+            future = executor.submit(scan_single_port, ip, port, delay)
             futures.append(future)
 
         for future in as_completed(futures):
@@ -187,11 +192,11 @@ def main() -> None:
     )
 
     parser.add_argument(
-    "-d",
-    "--delay",
-    type=float,
-    default=0,
-    help="Delay between scan attempts"
+        "-d",
+        "--delay",
+        type=float,
+        default=0,
+        help="Delay between scan attempts"
     )
 
     args = parser.parse_args()
@@ -201,7 +206,8 @@ def main() -> None:
     results = scan_ports(
         args.target,
         start_port,
-        end_port
+        end_port,
+        args.delay
     )
 
     if args.output:
