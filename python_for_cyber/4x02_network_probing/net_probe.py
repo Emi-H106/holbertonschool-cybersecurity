@@ -4,6 +4,7 @@
 import argparse
 import json
 import socket
+import time
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -79,8 +80,12 @@ def scan_ports(ip: str, start_port: int, end_port: int) -> list:
     return results
 
 
-def scan_single_port(ip: str, port: int):
+def scan_single_port(ip: str, port: int, delay: float = 0 ):
     """Scan a single TCP port and return its information."""
+     if delay > 0:
+        print(f"[DEBUG] Sleeping {delay}s before next packet...")
+        time.sleep(delay)
+
     if check_port(ip, port):
         banner = get_banner(ip, port)
         status = check_vulnerability(banner)
@@ -179,6 +184,14 @@ def main() -> None:
         "-o",
         "--output",
         help="Output JSON file"
+    )
+
+    parser.add_argument(
+    "-d",
+    "--delay",
+    type=float,
+    default=0,
+    help="Delay between scan attempts"
     )
 
     args = parser.parse_args()
