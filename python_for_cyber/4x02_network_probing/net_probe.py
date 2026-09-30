@@ -84,7 +84,7 @@ def scan_single_port(ip: str, port: int):
 
         return {
             "port": port,
-            "service": banner
+            "service": banner,
             "status": status
         }
 
