@@ -3,7 +3,7 @@
 
 import argparse
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from scanner import scan_ports, resolve_hostname
 from reporter import save_json_report
 
 
