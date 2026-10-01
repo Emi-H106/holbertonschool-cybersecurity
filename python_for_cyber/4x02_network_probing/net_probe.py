@@ -74,6 +74,8 @@ def get_banner(ip: str, port: int, local_ip: str = None) -> str:
                 if line.lower().startswith("server:"):
                     server = line.split(":", 1)[1].strip()
                     return f"HTTP ({server})"
+            
+            return "Unknown"
 
         return response.strip()
 
