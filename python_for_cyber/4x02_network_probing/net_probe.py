@@ -100,6 +100,7 @@ def scan_ports(
     end_port: int,
     delay: float = 0.0,
     randomize: bool = False
+    local_ip: str = None
 ) -> list:
     """Scan a range of TCP ports using multiple threads."""
     results = []
@@ -116,7 +117,13 @@ def scan_ports(
         futures = []
 
         for port in ports:
-            future = executor.submit(scan_single_port, ip, port, delay, local_ip)
+            future = executor.submit(
+                scan_single_port,
+                ip,
+                port,
+                delay,
+                local_ip
+            )
             futures.append(future)
 
         for future in as_completed(futures):
