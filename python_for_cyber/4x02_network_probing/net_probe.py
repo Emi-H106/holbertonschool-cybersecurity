@@ -99,7 +99,7 @@ def scan_ports(
     start_port: int,
     end_port: int,
     delay: float = 0.0,
-    randomize: bool = False
+    randomize: bool = False,
     local_ip: str = None
 ) -> list:
     """Scan a range of TCP ports using multiple threads."""
