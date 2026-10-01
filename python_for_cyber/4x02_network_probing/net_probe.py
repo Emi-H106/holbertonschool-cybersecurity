@@ -120,11 +120,11 @@ def scan_single_port(
         time.sleep(delay)
 
     if check_port(ip, port, local_ip):
-    if port == 80:
-        server = get_http_server(ip, local_ip)
-        service = f"HTTP ({server})"
-    else:
-        service = get_banner(ip, port, local_ip)
+        if port == 80:
+            server = get_http_server(ip, local_ip)
+            service = f"HTTP ({server})"
+        else:
+            service = get_banner(ip, port, local_ip)
 
     status = check_vulnerability(service)
 
@@ -135,7 +135,7 @@ def scan_single_port(
         "vulnerability": "YES" if status else "NO"
     }
 
-return None
+    return None
 
 
 def scan_ports(
