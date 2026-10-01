@@ -51,55 +51,33 @@ def get_banner(ip: str, port: int, local_ip: str = None) -> str:
 
         sock.connect((ip, port))
 
-        if port != 22:
+        if port == 80:
+            request = (
+                f"GET / HTTP/1.1\r\n"
+                f"Host: {ip}\r\n"
+                f"\r\n"
+            )
+            sock.sendall(request.encode())
+
+        elif port != 22:
             sock.sendall(b"HEAD / HTTP/1.0\r\n\r\n")
 
-        data = sock.recv(1024)
+        data = sock.recv(4096)
 
         if not data:
             return "Unknown"
 
-        return data.decode(errors="ignore").strip()
+        response = data.decode(errors="ignore")
+
+        if port == 80:
+            for line in response.splitlines():
+                if line.lower().startswith("server:"):
+                    server = line.split(":", 1)[1].strip()
+                    return f"HTTP ({server})"
+
+        return response.strip()
 
     except (OSError, socket.timeout):
-        return "Unknown"
-    finally:
-        sock.close()
-
-
-def get_http_server(
-    ip: str,
-    local_ip: str = None
-) -> str:
-    """Retrieve the Server header from an HTTP response."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(2)
-
-    try:
-        if local_ip:
-            sock.bind((local_ip, 0))
-
-        sock.connect((ip, 80))
-
-        request = (
-            f"GET / HTTP/1.1\r\n"
-            f"Host: {ip}\r\n"
-            f"\r\n"
-        )
-
-        sock.sendall(request.encode())
-
-        response = sock.recv(4096).decode(
-            errors="ignore"
-        )
-
-        for line in response.splitlines():
-            if line.lower().startswith("server:"):
-                return line.split(":", 1)[1].strip()
-
-        return "Unknown"
-
-    except OSError:
         return "Unknown"
 
     finally:
@@ -120,18 +98,13 @@ def scan_single_port(
         time.sleep(delay)
 
     if check_port(ip, port, local_ip):
-        if port == 80:
-            server = get_http_server(ip, local_ip)
-            service = f"HTTP ({server})"
-        else:
-            service = get_banner(ip, port, local_ip)
-
-    status = check_vulnerability(service)
+        banner = get_banner(ip, port, local_ip)
+        status = check_vulnerability(banner)
 
     return {
         "port": port,
         "state": "open",
-        "service": service,
+        "service": banner,
         "vulnerability": "YES" if status else "NO"
     }
 
