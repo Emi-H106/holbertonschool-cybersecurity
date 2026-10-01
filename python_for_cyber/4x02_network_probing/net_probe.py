@@ -80,8 +80,8 @@ def scan_single_port(
         )
         time.sleep(delay)
 
-    if check_port(ip, port):
-        banner = get_banner(ip, port)
+    if check_port(ip, port, local_ip):
+        banner = get_banner(ip, port, local_ip)
         status = check_vulnerability(banner)
 
         return {
