@@ -67,6 +67,45 @@ def get_banner(ip: str, port: int, local_ip: str = None) -> str:
         sock.close()
 
 
+def get_http_server(
+    ip: str,
+    local_ip: str = None
+) -> str:
+    """Retrieve the Server header from an HTTP response."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(2)
+
+    try:
+        if local_ip:
+            sock.bind((local_ip, 0))
+
+        sock.connect((ip, 80))
+
+        request = (
+            f"GET / HTTP/1.1\r\n"
+            f"Host: {ip}\r\n"
+            f"\r\n"
+        )
+
+        sock.sendall(request.encode())
+
+        response = sock.recv(4096).decode(
+            errors="ignore"
+        )
+
+        for line in response.splitlines():
+            if line.lower().startswith("server:"):
+                return line.split(":", 1)[1].strip()
+
+        return "Unknown"
+
+    except OSError:
+        return "Unknown"
+
+    finally:
+        sock.close()
+
+
 def scan_single_port(
     ip: str,
     port: int,
@@ -81,17 +120,22 @@ def scan_single_port(
         time.sleep(delay)
 
     if check_port(ip, port, local_ip):
-        banner = get_banner(ip, port, local_ip)
-        status = check_vulnerability(banner)
+    if port == 80:
+        server = get_http_server(ip, local_ip)
+        service = f"HTTP ({server})"
+    else:
+        service = get_banner(ip, port, local_ip)
 
-        return {
-            "port": port,
-            "state": "open",
-            "service": banner,
-            "vulnerability": "YES" if status else "NO"
-        }
+    status = check_vulnerability(service)
 
-    return None
+    return {
+        "port": port,
+        "state": "open",
+        "service": service,
+        "vulnerability": "YES" if status else "NO"
+    }
+
+return None
 
 
 def scan_ports(
