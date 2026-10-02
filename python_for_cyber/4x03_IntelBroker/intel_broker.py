@@ -24,5 +24,6 @@ def query_virustotal(ip: str) -> dict:
         print("[ERROR] VirusTotal API request timed out.")
         return {}
 
+
 if __name__ == "__main__":
     print(query_virustotal("1.2.3.4"))
