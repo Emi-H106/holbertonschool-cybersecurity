@@ -2,9 +2,11 @@
 """Query the mock VirusTotal API for IP reputation information."""
 
 import argparse
+import asyncio
 import subprocess
 import xml.etree.ElementTree as ET
 
+import aiohttp
 import requests
 
 
@@ -31,6 +33,15 @@ class TargetDossier:
         self.nmap_ports = (
             list(nmap_ports) if nmap_ports is not None else []
         )
+
+
+async def fetch_api(session, url):
+    """Fetch JSON data asynchronously from an API."""
+    async with session.get(url) as response:
+        if response.status == 200:
+            return await response.json()
+
+        return {}
 
 
 def query_virustotal(ip: str) -> dict:
