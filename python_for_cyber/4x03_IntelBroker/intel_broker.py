@@ -59,13 +59,9 @@ def run_nmap(ip: str) -> str:
         )
 
         if result.returncode != 0:
-            raise RuntimeError(f"Nmap failed: {result.stderr}")
+            raise RuntimeError("Nmap scan failed")
 
         return result.stdout
-
-    except FileNotFoundError:
-        print("[ERROR] Nmap is not installed.")
-        return ""
 
 
 if __name__ == "__main__":
