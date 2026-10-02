@@ -140,16 +140,16 @@ def parse_nmap_xml(xml_data: str) -> list:
     return open_ports
 
 
-def main():
+async def main():
     """Run IntelBroker from the command line."""
     parser = argparse.ArgumentParser(
         description="Collect intelligence about a target IP."
     )
     parser.add_argument("ip", help="Target IP address")
     parser.add_argument(
-    "-o",
-    "--output",
-    help="Save the intelligence report to a JSON file"
+        "-o",
+        "--output",
+        help="Save the intelligence report to a JSON file"
     )
 
     args = parser.parse_args()
