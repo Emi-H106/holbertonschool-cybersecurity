@@ -90,12 +90,20 @@ async def gather_intel(ip):
     shodan_url = f"http://localhost:5000/shodan/{ip}"
     abuse_url = f"http://localhost:5000/abuseipdb/{ip}"
 
+    semaphore = asyncio.Semaphore(5)
+
     async with aiohttp.ClientSession() as session:
+
+        async def limited_fetch(url):
+            async with semaphore:
+                return await fetch_api(session, url)
+
         vt_data, shodan_data, abuse_data = await asyncio.gather(
-            fetch_api(session, vt_url),
-            fetch_api(session, shodan_url),
-            fetch_api(session, abuse_url)
+            limited_fetch(vt_url),
+            limited_fetch(shodan_url),
+            limited_fetch(abuse_url)
         )
+
 
     cache[ip] = {
         "timestamp": datetime.now().isoformat(),
