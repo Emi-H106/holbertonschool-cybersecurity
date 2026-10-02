@@ -11,11 +11,17 @@ import requests
 class TargetDossier:
     """Store intelligence data for a target IP."""
 
-    def __init__(self, ip: str):
+    def __init__(
+        self,
+        ip: str,
+        vt_data: dict = None,
+        abuse_data: dict = None,
+        nmap_ports: list = None
+    ):
         self.ip = ip
-        self.vt_data = {}
-        self.abuse_data = {}
-        self.nmap_ports = []
+        self.vt_data = vt_data if vt_data is not None else {}
+        self.abuse_data = abuse_data if abuse_data is not None else {}
+        self.nmap_ports = nmap_ports if nmap_ports is not None else []
 
 
 def query_virustotal(ip: str) -> dict:
