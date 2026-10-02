@@ -102,20 +102,25 @@ def query_abuseipdb(ip: str) -> dict:
         return {}
 
 
-def run_nmap(ip: str) -> str:
-    """Run Nmap against an IP and return the raw XML output."""
-    command = ["nmap", "-p", "22,80", ip, "-oX", "-"]
-
-    result = subprocess.run(
-        command,
-        capture_output=True,
-        text=True
+async def run_nmap(ip: str) -> str:
+    """Run Nmap asynchronously and return the raw XML output."""
+    process = await asyncio.create_subprocess_exec(
+        "nmap",
+        "-p",
+        "22,80",
+        ip,
+        "-oX",
+        "-",
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
     )
 
-    if result.returncode != 0:
+    stdout, stderr = await process.communicate()
+
+    if process.returncode != 0:
         raise RuntimeError("Nmap scan failed")
 
-    return result.stdout
+    return stdout.decode()
 
 
 def parse_nmap_xml(xml_data: str) -> list:
@@ -146,7 +151,7 @@ def main():
     dossier.vt_data = query_virustotal(args.ip)
     dossier.abuse_data = query_abuseipdb(args.ip)
 
-    xml_data = run_nmap(args.ip)
+    xml_data = await run_nmap(args.ip)
     dossier.nmap_ports = parse_nmap_xml(xml_data)
 
     print(f"Target: {dossier.ip}")
