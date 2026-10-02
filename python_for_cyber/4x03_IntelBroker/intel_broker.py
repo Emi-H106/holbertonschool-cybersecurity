@@ -67,11 +67,15 @@ def get_cached_data(ip, cache):
 
 async def fetch_api(session, url):
     """Fetch JSON data asynchronously from an API."""
-    async with session.get(url) as response:
-        if response.status == 200:
-            return await response.json()
+    try:
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.json()
 
-        return {}
+            return {"error": "Unavailable"}
+
+    except aiohttp.ClientError:
+        return {"error": "Unavailable"}
 
 
 async def gather_intel(ip):
