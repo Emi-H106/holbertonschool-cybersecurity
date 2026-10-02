@@ -2,6 +2,7 @@
 """Query the mock VirusTotal API for IP reputation information."""
 
 import requests
+import subprocess
 
 
 def query_virustotal(ip: str) -> dict:
@@ -46,6 +47,28 @@ def query_abuseipdb(ip: str) -> dict:
         return {}
 
 
+def run_nmap(ip: str) -> str:
+    """Run Nmap against an IP and return the raw XML output."""
+    command = ["nmap", "-p", "22,80", ip, "-oX", "-"]
+
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(f"Nmap failed: {result.stderr}")
+
+        return result.stdout
+
+    except FileNotFoundError:
+        print("[ERROR] Nmap is not installed.")
+        return ""
+
+
 if __name__ == "__main__":
     print(query_virustotal("1.2.3.4"))
     print(query_abuseipdb("1.2.3.4"))
+    print(run_nmap("127.0.0.1"))
