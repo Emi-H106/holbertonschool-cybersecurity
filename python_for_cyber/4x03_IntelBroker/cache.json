@@ -1,0 +1,25 @@
+{
+    "127.0.0.1": {
+        "timestamp": "2026-10-02T15:27:42.195907",
+        "data": {
+            "virustotal": {
+                "ip": "127.0.0.1",
+                "reputation_score": 2,
+                "malicious": false
+            },
+            "shodan": {
+                "ip": "127.0.0.1",
+                "ports": [
+                    22
+                ],
+                "os": "Linux",
+                "isp": "CloudNet"
+            },
+            "abuseipdb": {
+                "ip": "127.0.0.1",
+                "abuse_confidence_score": 33,
+                "reports": 31
+            }
+        }
+    }
+}
