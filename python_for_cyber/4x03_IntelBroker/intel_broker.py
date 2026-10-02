@@ -69,12 +69,12 @@ async def fetch_api(session, url):
     """Fetch JSON data asynchronously from an API."""
     try:
         async with session.get(url) as response:
-            if response.status == 200:
-                return await response.json()
+            if response.status != 200:
+                return {"error": "Unavailable"}
 
-            return {"error": "Unavailable"}
+            return await response.json()
 
-    except aiohttp.ClientError:
+    except Exception:
         return {"error": "Unavailable"}
 
 
