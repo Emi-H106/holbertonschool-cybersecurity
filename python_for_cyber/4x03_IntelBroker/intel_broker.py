@@ -54,7 +54,7 @@ def run_nmap(ip: str) -> str:
     try:
         result = subprocess.run(
             command,
-            capture_output=True
+            capture_output=True,
             Text=True
         )
 
