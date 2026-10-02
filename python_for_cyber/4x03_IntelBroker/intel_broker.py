@@ -44,6 +44,22 @@ async def fetch_api(session, url):
         return {}
 
 
+async def gather_intel(ip):
+    """Gather intelligence from three APIs concurrently."""
+    vt_url = f"http://localhost:5000/virustotal/{ip}"
+    shodan_url = f"http://localhost:5000/shodan/{ip}"
+    abuse_url = f"http://localhost:5000/abuseipdb/{ip}"
+
+    async with aiohttp.ClientSession() as session:
+        vt_data, shodan_data, abuse_data = await asyncio.gather(
+            fetch_api(session, vt_url),
+            fetch_api(session, shodan_url),
+            fetch_api(session, abuse_url)
+        )
+
+    return vt_data, shodan_data, abuse_data
+
+
 def query_virustotal(ip: str) -> dict:
     """Query VirusTotal mock API and return IP reputation data."""
     url = f"http://localhost:5000/virustotal/{ip}"
