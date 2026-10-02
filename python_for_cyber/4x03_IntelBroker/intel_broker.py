@@ -55,12 +55,13 @@ def run_nmap(ip: str) -> str:
         result = subprocess.run(
             command,
             capture_output=True
+            Text=True
         )
 
         if result.returncode != 0:
             raise RuntimeError("Nmap scan failed")
 
-        return result.stdout.decode()
+        return result.stdout
 
 
 if __name__ == "__main__":
