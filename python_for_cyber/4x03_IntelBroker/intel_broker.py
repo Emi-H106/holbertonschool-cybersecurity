@@ -25,10 +25,15 @@ class TargetDossier:
         ip: str = "",
         vt_data=None,
         abuse_data=None,
+        shodan_data=None,
         nmap_ports=None
     ):
         self.ip = ip
+        self.vself.shodan_data = (
+            shodan_data if isinstance(shodan_data, dict) else {}
+        )
         self.vt_data = vt_data if isinstance(vt_data, dict) else {}
+
         self.abuse_data = (
             abuse_data if isinstance(abuse_data, dict) else {}
         )
@@ -68,11 +73,12 @@ def get_cached_data(ip, cache):
 async def fetch_api(session, url):
     """Fetch JSON data asynchronously from an API."""
     try:
-        async with session.get(url) as response:
-            if response.status != 200:
-                return {"error": "Unavailable"}
+        response = await session.get(url)
 
-            return await response.json()
+        if response.status != 200:
+            return {"error": "Unavailable"}
+
+        return await response.json()
 
     except Exception:
         return {"error": "Unavailable"}
@@ -218,11 +224,16 @@ async def main():
 
     vt_data, shodan_data, abuse_data = await gather_intel(args.ip)
 
+    dossier.vt_data = vt_data
+    dossier.shodan_data = shodan_data
+    dossier.abuse_data = abuse_data
+
     xml_data = await run_nmap(args.ip)
     dossier.nmap_ports = parse_nmap_xml(xml_data)
 
     print(f"Target: {dossier.ip}")
     print(f"VirusTotal: {dossier.vt_data}")
+    print(f"Shodan: {dossier.shodan_data}")
     print(f"AbuseIPDB: {dossier.abuse_data}")
     print(f"Open ports: {dossier.nmap_ports}")
 
