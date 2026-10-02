@@ -246,7 +246,7 @@ async def main():
     dossier.nmap_ports = parse_nmap_xml(xml_data)
 
     if args.verbose:
-    print("[+] Nmap finished.")
+        print("[+] Nmap finished.")
 
     print(f"Target: {dossier.ip}")
     print(f"VirusTotal: {dossier.vt_data}")
