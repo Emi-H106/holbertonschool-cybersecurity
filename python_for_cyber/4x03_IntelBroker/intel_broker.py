@@ -3,8 +3,19 @@
 
 import xml.etree.ElementTree as ET
 
+import argparse
 import requests
 import subprocess
+
+
+class TargetDossier:
+    """Store intelligence data for a target IP."""
+
+    def __init__(self, ip: str):
+        self.ip = ip
+        self.vt_data = {}
+        self.abuse_data = {}
+        self.nmap_ports = []
 
 
 def query_virustotal(ip: str) -> dict:
@@ -80,7 +91,28 @@ def parse_nmap_xml(xml_data: str) -> list:
     return open_ports
 
 
+def main():
+    """Run IntelBroker from the command line."""
+    parser = argparse.ArgumentParser(
+        description="Collect intelligence about a target IP."
+    )
+    parser.add_argument("ip", help="Target IP address")
+    args = parser.parse_args()
+
+    dossier = TargetDossier(args.ip)
+
+    dossier.vt_data = query_virustotal(args.ip)
+    dossier.abuse_data = query_abuseipdb(args.ip)
+
+    xml_data = run_nmap(args.ip)
+    dossier.nmap_ports = parse_nmap_xml(xml_data)
+
+    print(f"Target: {dossier.ip}")
+    print(f"VirusTotal: {dossier.vt_data}")
+    print(f"AbuseIPDB: {dossier.abuse_data}")
+    print(f"Open ports: {dossier.nmap_ports}")
+
+
 if __name__ == "__main__":
-    print(query_virustotal("1.2.3.4"))
-    print(query_abuseipdb("1.2.3.4"))
-    print(run_nmap("127.0.0.1"))
+    main()
+    
