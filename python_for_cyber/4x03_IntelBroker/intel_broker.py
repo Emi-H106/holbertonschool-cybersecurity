@@ -217,6 +217,12 @@ async def main():
         "--output",
         help="Save the intelligence report to a JSON file"
     )
+    parser.add_argument(
+    "-v",
+    "--verbose",
+    action="store_true",
+    help="Display progress messages"
+    )
 
     args = parser.parse_args()
 
