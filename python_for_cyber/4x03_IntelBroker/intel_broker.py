@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Query the mock VirusTotal API for IP reputation information."""
 
+import xml.etree.ElementTree as ET
+
 import requests
 import subprocess
 
@@ -61,6 +63,22 @@ def run_nmap(ip: str) -> str:
         raise RuntimeError("Nmap scan failed")
 
     return result.stdout
+
+
+
+def parse_nmap_xml(xml_data: str) -> list:
+    """Parse Nmap XML output and return a list of open ports."""
+    root = ET.fromstring(xml_data)
+    open_ports = []
+
+    for port in root.findall("host/ports/port"):
+        state = port.find("state")
+
+        if state is not None and state.get("state") == "open":
+            port_id = int(port.get("portid"))
+            open_ports.append(port_id)
+
+    return open_ports
 
 
 if __name__ == "__main__":
