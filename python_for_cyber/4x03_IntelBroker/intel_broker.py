@@ -51,17 +51,16 @@ def run_nmap(ip: str) -> str:
     """Run Nmap against an IP and return the raw XML output."""
     command = ["nmap", "-p", "22,80", ip, "-oX", "-"]
 
-    try:
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            Text=True
-        )
+    result = subprocess.run(
+        command,
+        capture_output=True,
+        text=True
+    )
 
-        if result.returncode != 0:
-            raise RuntimeError("Nmap scan failed")
+    if result.returncode != 0:
+        raise RuntimeError("Nmap scan failed")
 
-        return result.stdout
+    return result.stdout
 
 
 if __name__ == "__main__":
