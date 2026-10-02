@@ -3,8 +3,10 @@
 
 import argparse
 import asyncio
+import json
 import subprocess
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 import aiohttp
 import requests
@@ -144,12 +146,17 @@ def main():
         description="Collect intelligence about a target IP."
     )
     parser.add_argument("ip", help="Target IP address")
+    parser.add_argument(
+    "-o",
+    "--output",
+    help="Save the intelligence report to a JSON file"
+    )
+
     args = parser.parse_args()
 
     dossier = TargetDossier(args.ip)
 
-    dossier.vt_data = query_virustotal(args.ip)
-    dossier.abuse_data = query_abuseipdb(args.ip)
+    vt_data, shodan_data, abuse_data = await gather_intel(args.ip)
 
     xml_data = await run_nmap(args.ip)
     dossier.nmap_ports = parse_nmap_xml(xml_data)
@@ -159,6 +166,21 @@ def main():
     print(f"AbuseIPDB: {dossier.abuse_data}")
     print(f"Open ports: {dossier.nmap_ports}")
 
+    if args.output:
+        report = {
+            "target": dossier.ip,
+            "timestamp": datetime.now().isoformat(),
+            "intelligence": {
+                "virustotal": dossier.vt_data,
+                "shodan": shodan_data,
+                "abuseipdb": dossier.abuse_data,
+                "nmap_ports": dossier.nmap_ports
+            }
+        }
+
+        with open(args.output, "w", encoding="utf-8") as file:
+            json.dump(report, file, indent=4)
+
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
