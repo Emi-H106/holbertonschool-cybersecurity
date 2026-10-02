@@ -65,7 +65,6 @@ def run_nmap(ip: str) -> str:
     return result.stdout
 
 
-
 def parse_nmap_xml(xml_data: str) -> list:
     """Parse Nmap XML output and return a list of open ports."""
     root = ET.fromstring(xml_data)
