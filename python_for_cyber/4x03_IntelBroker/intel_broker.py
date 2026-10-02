@@ -104,7 +104,6 @@ async def gather_intel(ip):
             limited_fetch(abuse_url)
         )
 
-
     cache[ip] = {
         "timestamp": datetime.now().isoformat(),
         "data": {
