@@ -218,15 +218,20 @@ async def main():
         help="Save the intelligence report to a JSON file"
     )
     parser.add_argument(
-    "-v",
-    "--verbose",
-    action="store_true",
-    help="Display progress messages"
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Display progress messages"
     )
 
     args = parser.parse_args()
 
     dossier = TargetDossier(args.ip)
+
+    if args.verbose:
+        print("[+] Querying VirusTotal...")
+        print("[+] Querying Shodan...")
+        print("[+] Querying AbuseIPDB...")
 
     vt_data, shodan_data, abuse_data = await gather_intel(args.ip)
 
@@ -234,8 +239,14 @@ async def main():
     dossier.shodan_data = shodan_data
     dossier.abuse_data = abuse_data
 
+    if args.verbose:
+        print("[+] Running Nmap...")
+
     xml_data = await run_nmap(args.ip)
     dossier.nmap_ports = parse_nmap_xml(xml_data)
+
+    if args.verbose:
+    print("[+] Nmap finished.")
 
     print(f"Target: {dossier.ip}")
     print(f"VirusTotal: {dossier.vt_data}")
@@ -258,6 +269,8 @@ async def main():
         with open(args.output, "w", encoding="utf-8") as file:
             json.dump(report, file, indent=4)
 
+    if args.verbose:
+        print("[SUCCESS] Report generated.")
 
 if __name__ == "__main__":
     asyncio.run(main())
