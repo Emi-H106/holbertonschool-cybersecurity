@@ -36,7 +36,7 @@ def packet_handler(packet) -> None:
 
 def main() -> None:
     """Parse arguments and start packet capture."""
-     global pcap_writer
+    global pcap_writer
 
     parser = argparse.ArgumentParser(
         description="Capture and analyze network packets."
@@ -59,8 +59,7 @@ def main() -> None:
 
     print("[INFO] PySniffer initialized.")
 
-
-     if args.write:
+    if args.write:
         pcap_writer = PcapWriter(
             args.write,
             append=True,
