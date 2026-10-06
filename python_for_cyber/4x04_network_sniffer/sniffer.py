@@ -3,7 +3,7 @@
 
 import argparse
 
-from scapy.all import PcapWriter, hexdump, sniff
+from scapy.all import hexdump, sniff
 
 
 pcap_writer = None
@@ -75,6 +75,8 @@ def main() -> None:
     print("[INFO] PySniffer initialized.")
 
     if args.write:
+        from scapy.utils import PcapWriter
+
         pcap_writer = PcapWriter(
             args.write,
             append=True,
