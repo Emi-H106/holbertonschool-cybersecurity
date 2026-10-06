@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Capture and display network packet summaries using Scapy."""
 
+import argparse
+
 from scapy.all import sniff
 
 
@@ -26,11 +28,30 @@ def packet_handler(packet) -> None:
 
 
 def main() -> None:
-    """Start PySniffer and capture five network packets."""
+    """Parse arguments and start packet capture."""
+    parser = argparse.ArgumentParser(
+        description="Capture and analyze network packets."
+    )
+    parser.add_argument(
+        "-i",
+        "--interface",
+        help="Network interface to sniff on"
+    )
+    parser.add_argument(
+        "-f",
+        "--filter",
+        help="BPF filter for packet capture"
+    )
+    args = parser.parse_args()
+
     print("[INFO] PySniffer initialized.")
 
     try:
-        sniff(prn=packet_handler)
+        sniff(
+            iface=args.interface,
+            filter=args.filter,
+            prn=packet_handler
+        )
     except KeyboardInterrupt:
         print("[INFO] Stopping capture...")
 
