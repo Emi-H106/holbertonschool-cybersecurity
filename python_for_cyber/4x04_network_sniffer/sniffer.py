@@ -3,11 +3,12 @@
 
 import argparse
 
-from scapy.all import sniff
+from scapy.all import hexdump, sniff
 from scapy.utils import PcapWriter
 
 
 pcap_writer = None
+verbose = False
 
 
 def packet_handler(packet) -> None:
@@ -36,10 +37,13 @@ def packet_handler(packet) -> None:
         elif packet.haslayer("ICMP"):
             print(f"[ICMP] {source_ip} -> {destination_ip}")
 
+        if verbose:
+            hexdump(packet)
+
 
 def main() -> None:
     """Parse arguments and start packet capture."""
-    global pcap_writer
+    global pcap_writer, verbose
 
     parser = argparse.ArgumentParser(
         description="Capture and analyze network packets."
@@ -58,7 +62,16 @@ def main() -> None:
         "--write",
         help="Write captured packets to a PCAP file"
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Display packet hex dump"
+    )
+
     args = parser.parse_args()
+
+    verbose = args.verbose
 
     print("[INFO] PySniffer initialized.")
 
