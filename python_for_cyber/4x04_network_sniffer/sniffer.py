@@ -15,6 +15,9 @@ def packet_handler(packet) -> None:
     if pcap_writer is not None:
         pcap_writer.write(packet)
 
+    if verbose:
+        hexdump(packet)
+
     if not hasattr(packet, "haslayer"):
         return
 
@@ -35,9 +38,6 @@ def packet_handler(packet) -> None:
             print(f"[UDP] {source_ip} -> {destination_ip}")
         elif packet.haslayer("ICMP"):
             print(f"[ICMP] {source_ip} -> {destination_ip}")
-
-        if verbose:
-            hexdump(packet)
 
 
 def main() -> None:
