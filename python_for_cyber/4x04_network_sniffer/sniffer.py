@@ -28,8 +28,8 @@ def packet_handler(packet) -> None:
 def main() -> None:
     """Start PySniffer and capture five network packets."""
     print("[INFO] PySniffer initialized.")
-   
-   try:
+
+    try:
         sniff(prn=packet_handler)
     except KeyboardInterrupt:
         print("[INFO] Stopping capture...")
