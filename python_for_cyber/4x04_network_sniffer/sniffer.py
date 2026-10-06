@@ -76,6 +76,7 @@ class Sniffer:
                     f"{destination_ip}"
                 )
 
+
 def main():
     """Parse command-line arguments and start the sniffer."""
     parser = argparse.ArgumentParser(
