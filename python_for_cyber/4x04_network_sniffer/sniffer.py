@@ -3,8 +3,7 @@
 
 import argparse
 
-from scapy.all import hexdump, sniff
-from scapy.utils import PcapWriter
+from scapy.all import PcapWriter, hexdump, sniff
 
 
 pcap_writer = None
