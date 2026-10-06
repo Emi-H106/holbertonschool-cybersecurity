@@ -17,33 +17,31 @@ class Sniffer:
         self.pcap_writer = None
         self.verbose = False
 
+    def start(self):
+        """Start capturing network packets."""
+        if self.output_file:
+            try:
+                from scapy.utils import PcapWriter
 
-   def start(self):
-    """Start capturing network packets."""
-    if self.output_file:
+                self.pcap_writer = PcapWriter(
+                    self.output_file,
+                    append=True,
+                    sync=True
+                )
+            except ImportError:
+                self.pcap_writer = None
+
         try:
-            from scapy.utils import PcapWriter
-
-            self.pcap_writer = PcapWriter(
-                self.output_file,
-                append=True,
-                sync=True
+            sniff(
+                iface=self.interface,
+                filter=self.filter_str,
+                prn=self._process_packet
             )
-        except ImportError:
-            self.pcap_writer = None
-
-    try:
-        sniff(
-            iface=self.interface,
-            filter=self.filter_str,
-            prn=self._process_packet
-        )
-    except KeyboardInterrupt:
-        print("[INFO] Stopping capture...")
-    finally:
-        if self.pcap_writer is not None:
-            self.pcap_writer.close()
-
+        except KeyboardInterrupt:
+            print("[INFO] Stopping capture...")
+        finally:
+            if self.pcap_writer is not None:
+                self.pcap_writer.close()
 
     def _process_packet(self, packet):
         """Process, display, and optionally save a captured packet."""
