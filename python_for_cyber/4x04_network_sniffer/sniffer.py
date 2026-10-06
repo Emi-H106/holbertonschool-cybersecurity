@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Capture and display network packet summaries using Scapy."""
 
-from scapy.all import ICMP, IP, TCP, UDP, sniff
+from scapy.all import sniff
+from scapy.layers.inet import ICMP, IP, TCP, UDP
 
 
 def packet_handler(packet) -> None:
