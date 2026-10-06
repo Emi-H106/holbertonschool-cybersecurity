@@ -3,6 +3,7 @@
 
 from scapy.all import sniff
 
+
 def packet_handler(packet) -> None:
     """Identify and display protocol details of a captured packet."""
     if packet.haslayer(IP):
