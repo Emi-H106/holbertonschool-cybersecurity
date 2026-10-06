@@ -14,7 +14,7 @@ def packet_handler(packet) -> None:
     """Analyze a packet and optionally write it to a PCAP file."""
     if pcap_writer is not None:
         pcap_writer.write(packet)
-    
+
     if not hasattr(packet, "haslayer"):
         return
 
