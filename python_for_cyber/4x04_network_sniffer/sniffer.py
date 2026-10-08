@@ -38,6 +38,14 @@ except ImportError:
 
 
 try:
+    from scapy.all import Raw
+except ImportError:
+    class Raw:
+        """Fallback Raw layer."""
+        pass
+
+
+try:
     from scapy.utils import PcapWriter
 except ImportError:
     PcapWriter = None
@@ -51,6 +59,32 @@ except ImportError:
 
 class PacketProcessor:
     """Base class for packet processors."""
+
+    def __init__(self, search_string=None):
+        """Initialize the packet processor."""
+        self.search_string = search_string
+
+    def search_payload(self, packet):
+        """Search for a string in the packet payload."""
+        if not self.search_string:
+            return
+
+        if not packet.haslayer(Raw):
+            return
+
+        raw_layer = packet[Raw]
+        raw_data = getattr(raw_layer, "load", b"")
+
+        if isinstance(raw_data, bytes):
+            payload = raw_data.decode(
+                "utf-8",
+                errors="ignore"
+            )
+        else:
+            payload = str(raw_data)
+
+        if self.search_string in payload:
+            print("[ALERT] Payload Match found!")
 
     def process(self, packet):
         """Process a packet."""
@@ -77,6 +111,8 @@ class TCPProcessor(PacketProcessor):
             f"Flags: {flags}"
         )
 
+        self.search_payload(packet)
+
 
 class UDPProcessor(PacketProcessor):
     """Process UDP packets."""
@@ -92,6 +128,8 @@ class UDPProcessor(PacketProcessor):
             f"[UDP] {source_ip} -> "
             f"{destination_ip}"
         )
+
+        self.search_payload(packet)
 
 
 class ICMPProcessor(PacketProcessor):
@@ -109,22 +147,31 @@ class ICMPProcessor(PacketProcessor):
             f"{destination_ip}"
         )
 
+        self.search_payload(packet)
+
 
 class Sniffer:
     """Capture and process network packets."""
 
-    def __init__(self, interface, filter_str, output_file):
+    def __init__(
+        self,
+        interface,
+        filter_str,
+        output_file,
+        search_string=None
+    ):
         """Initialize the sniffer configuration."""
         self.interface = interface
         self.filter_str = filter_str
         self.output_file = output_file
+        self.search_string = search_string
         self.verbose = False
         self.pcap_writer = None
 
         self.processors = {
-            TCP: TCPProcessor(),
-            UDP: UDPProcessor(),
-            ICMP: ICMPProcessor()
+            TCP: TCPProcessor(search_string),
+            UDP: UDPProcessor(search_string),
+            ICMP: ICMPProcessor(search_string)
         }
 
         if output_file:
@@ -210,12 +257,19 @@ def main():
         help="Display packet hex dump"
     )
 
+    parser.add_argument(
+        "-s",
+        "--search",
+        help="Search for a string in packet payloads"
+    )
+
     args = parser.parse_args()
 
     sniffer = Sniffer(
         args.interface,
         args.filter,
-        args.write
+        args.write,
+        args.search
     )
 
     sniffer.verbose = args.verbose
