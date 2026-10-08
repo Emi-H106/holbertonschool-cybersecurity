@@ -2,6 +2,8 @@
 """Capture and analyze network packets using Scapy."""
 
 import argparse
+from queue import Queue
+from threading import Thread
 
 from scapy.all import sniff
 
@@ -167,6 +169,7 @@ class Sniffer:
         self.search_string = search_string
         self.verbose = False
         self.pcap_writer = None
+        self.packet_queue = Queue()
 
         self.stats = {
             "TCP": 0,
@@ -194,6 +197,21 @@ class Sniffer:
         """Display a packet hex dump when verbose mode is enabled."""
         if self.verbose and hexdump is not None:
             hexdump(packet)
+
+    def _enqueue_packet(self, packet):
+        """Add a captured packet to the processing queue."""
+        self.packet_queue.put(packet)
+
+    def _process_queue(self):
+        """Process packets from the queue."""
+        while True:
+            packet = self.packet_queue.get()
+
+            try:
+                self._process_packet(packet)
+            finally:
+                self.packet_queue.task_done()
+
 
     def _process_packet(self, packet):
         """Process, display, and optionally save a captured packet."""
@@ -227,11 +245,17 @@ class Sniffer:
         """Start capturing network packets."""
         print("[INFO] PySniffer initialized.")
 
+        processor_thread = Thread(
+        target=self._process_queue,
+        daemon=True
+        )
+        processor_thread.start()
+
         try:
             sniff(
                 iface=self.interface,
                 filter=self.filter_str,
-                prn=self._process_packet
+                prn=self._enqueue_packet
             )
         except KeyboardInterrupt:
             print("[INFO] Stopping capture...")
