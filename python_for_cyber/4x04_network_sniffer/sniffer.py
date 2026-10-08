@@ -62,14 +62,11 @@ class TCPProcessor(PacketProcessor):
 
     def process(self, packet):
         """Process a TCP packet."""
+        if not packet.haslayer(TCP):
+            return
+
         ip_layer = packet[IP]
         tcp_layer = packet[TCP]
-
-        if not all(
-            hasattr(tcp_layer, attr)
-            for attr in ("sport", "dport", "flags")
-        ):
-            return
 
         print(
             f"[TCP] {ip_layer.src}:{tcp_layer.sport} -> "
