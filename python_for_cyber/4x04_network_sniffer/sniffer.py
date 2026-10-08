@@ -49,6 +49,61 @@ except ImportError:
     hexdump = None
 
 
+class PacketProcessor:
+    """Base class for packet processors."""
+
+    def process(self, packet):
+        """Process a packet."""
+        raise NotImplementedError
+
+
+class TCPProcessor(PacketProcessor):
+    """Process TCP packets."""
+
+    def process(self, packet):
+        """Process a TCP packet."""
+        ip_layer = packet[IP]
+        tcp_layer = packet[TCP]
+
+        if not all(
+            hasattr(tcp_layer, attr)
+            for attr in ("sport", "dport", "flags")
+        ):
+            return
+
+        print(
+            f"[TCP] {ip_layer.src}:{tcp_layer.sport} -> "
+            f"{ip_layer.dst}:{tcp_layer.dport} | "
+            f"Flags: {tcp_layer.flags}"
+        )
+
+
+class UDPProcessor(PacketProcessor):
+    """Process UDP packets."""
+
+    def process(self, packet):
+        """Process a UDP packet."""
+        ip_layer = packet[IP]
+
+        print(
+            f"[UDP] {ip_layer.src} -> "
+            f"{ip_layer.dst}"
+        )
+
+
+class ICMPProcessor(PacketProcessor):
+    """Process ICMP packets."""
+
+    def process(self, packet):
+        """Process an ICMP packet."""
+        ip_layer = packet[IP]
+
+        print(
+            f"[ICMP] {ip_layer.src} -> "
+            f"{ip_layer.dst}"
+        )
+
+
 class Sniffer:
     """Capture and process network packets."""
 
@@ -59,6 +114,12 @@ class Sniffer:
         self.output_file = output_file
         self.verbose = False
         self.pcap_writer = None
+
+        self.processors = {
+            TCP: TCPProcessor(),
+            UDP: UDPProcessor(),
+            ICMP: ICMPProcessor()
+        }
 
         if output_file:
             if PcapWriter is None:
@@ -97,30 +158,10 @@ class Sniffer:
             self._dump_packet_if_verbose(packet)
             return
 
-        if packet.haslayer(TCP):
-            tcp_layer = packet[TCP]
-
-            if all(
-                hasattr(tcp_layer, attr)
-                for attr in ("sport", "dport", "flags")
-            ):
-                print(
-                    f"[TCP] {ip_layer.src}:{tcp_layer.sport} -> "
-                    f"{ip_layer.dst}:{tcp_layer.dport} | "
-                    f"Flags: {tcp_layer.flags}"
-                )
-
-        elif packet.haslayer(UDP):
-            print(
-                f"[UDP] {ip_layer.src} -> "
-                f"{ip_layer.dst}"
-            )
-
-        elif packet.haslayer(ICMP):
-            print(
-                f"[ICMP] {ip_layer.src} -> "
-                f"{ip_layer.dst}"
-            )
+        for protocol, processor in self.processors.items():
+            if packet.haslayer(protocol):
+                processor.process(packet)
+                break
 
         self._dump_packet_if_verbose(packet)
 
