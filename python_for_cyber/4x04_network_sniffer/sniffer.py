@@ -62,16 +62,19 @@ class TCPProcessor(PacketProcessor):
 
     def process(self, packet):
         """Process a TCP packet."""
-        if not packet.haslayer(TCP):
-            return
-
         ip_layer = packet[IP]
         tcp_layer = packet[TCP]
 
+        source_ip = getattr(ip_layer, "src", "Unknown")
+        destination_ip = getattr(ip_layer, "dst", "Unknown")
+        source_port = getattr(tcp_layer, "sport", "Unknown")
+        destination_port = getattr(tcp_layer, "dport", "Unknown")
+        flags = getattr(tcp_layer, "flags", "Unknown")
+
         print(
-            f"[TCP] {ip_layer.src}:{tcp_layer.sport} -> "
-            f"{ip_layer.dst}:{tcp_layer.dport} | "
-            f"Flags: {tcp_layer.flags}"
+            f"[TCP] {source_ip}:{source_port} -> "
+            f"{destination_ip}:{destination_port} | "
+            f"Flags: {flags}"
         )
 
 
@@ -82,9 +85,12 @@ class UDPProcessor(PacketProcessor):
         """Process a UDP packet."""
         ip_layer = packet[IP]
 
+        source_ip = getattr(ip_layer, "src", "Unknown")
+        destination_ip = getattr(ip_layer, "dst", "Unknown")
+
         print(
-            f"[UDP] {ip_layer.src} -> "
-            f"{ip_layer.dst}"
+            f"[UDP] {source_ip} -> "
+            f"{destination_ip}"
         )
 
 
@@ -95,9 +101,12 @@ class ICMPProcessor(PacketProcessor):
         """Process an ICMP packet."""
         ip_layer = packet[IP]
 
+        source_ip = getattr(ip_layer, "src", "Unknown")
+        destination_ip = getattr(ip_layer, "dst", "Unknown")
+
         print(
-            f"[ICMP] {ip_layer.src} -> "
-            f"{ip_layer.dst}"
+            f"[ICMP] {source_ip} -> "
+            f"{destination_ip}"
         )
 
 
@@ -143,15 +152,6 @@ class Sniffer:
             return
 
         if not packet.haslayer(IP):
-            self._dump_packet_if_verbose(packet)
-            return
-
-        ip_layer = packet[IP]
-
-        if not all(
-            hasattr(ip_layer, attr)
-            for attr in ("src", "dst")
-        ):
             self._dump_packet_if_verbose(packet)
             return
 
