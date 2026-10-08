@@ -212,7 +212,6 @@ class Sniffer:
             finally:
                 self.packet_queue.task_done()
 
-
     def _process_packet(self, packet):
         """Process, display, and optionally save a captured packet."""
         if self.pcap_writer is not None:
@@ -246,8 +245,8 @@ class Sniffer:
         print("[INFO] PySniffer initialized.")
 
         processor_thread = Thread(
-        target=self._process_queue,
-        daemon=True
+            target=self._process_queue,
+            daemon=True
         )
         processor_thread.start()
 
