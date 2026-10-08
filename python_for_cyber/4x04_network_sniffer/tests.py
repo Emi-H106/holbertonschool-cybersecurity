@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Unit tests for PySniffer packet processors."""
 
+import io
 import unittest
+from contextlib import redirect_stdout
 
 from scapy.all import IP, TCP
 
@@ -16,7 +18,9 @@ class TestTCPProcessor(unittest.TestCase):
         pkt = IP(src="1.1.1.1") / TCP(dport=80)
 
         processor = TCPProcessor()
-        processor.process(pkt)
+
+        with redirect_stdout(io.StringIO()):
+            processor.process(pkt)
 
         self.assertEqual(pkt[IP].src, "1.1.1.1")
         self.assertEqual(pkt[TCP].dport, 80)
