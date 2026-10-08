@@ -168,10 +168,16 @@ class Sniffer:
         self.verbose = False
         self.pcap_writer = None
 
+        self.stats = {
+            "TCP": 0,
+            "UDP": 0,
+            "ICMP": 0
+  }
+
         self.processors = {
-            TCP: TCPProcessor(search_string),
-            UDP: UDPProcessor(search_string),
-            ICMP: ICMPProcessor(search_string)
+            TCP: ("TCP", TCPProcessor(search_string)),
+            UDP: ("UDP", UDPProcessor(search_string)),
+            ICMP: ("ICMP", ICMPProcessor(search_string))
         }
 
         if output_file:
@@ -202,12 +208,20 @@ class Sniffer:
             self._dump_packet_if_verbose(packet)
             return
 
-        for protocol, processor in self.processors.items():
+        for protocol, (name, processor) in self.processors.items():
             if packet.haslayer(protocol):
+                self.stats[name] += 1
                 processor.process(packet)
                 break
 
         self._dump_packet_if_verbose(packet)
+
+    def _print_stats(self):
+        """Display packet statistics."""
+        print("\nPacket Statistics:")
+
+        for protocol, count in self.stats.items():
+            print(f"{protocol}: {count}")
 
     def start(self):
         """Start capturing network packets."""
@@ -221,6 +235,7 @@ class Sniffer:
             )
         except KeyboardInterrupt:
             print("[INFO] Stopping capture...")
+            self._print_stats()
         finally:
             if self.pcap_writer is not None:
                 self.pcap_writer.close()
