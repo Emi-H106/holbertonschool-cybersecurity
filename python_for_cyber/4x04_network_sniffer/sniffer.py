@@ -90,14 +90,25 @@ class Sniffer:
 
         ip_layer = packet[IP]
 
+        if not all(
+            hasattr(ip_layer, attr)
+            for attr in ("src", "dst")
+        ):
+            self._dump_packet_if_verbose(packet)
+            return
+
         if packet.haslayer(TCP):
             tcp_layer = packet[TCP]
 
-            print(
-                f"[TCP] {ip_layer.src}:{tcp_layer.sport} -> "
-                f"{ip_layer.dst}:{tcp_layer.dport} | "
-                f"Flags: {tcp_layer.flags}"
-            )
+            if all(
+                hasattr(tcp_layer, attr)
+                for attr in ("sport", "dport", "flags")
+            ):
+                print(
+                    f"[TCP] {ip_layer.src}:{tcp_layer.sport} -> "
+                    f"{ip_layer.dst}:{tcp_layer.dport} | "
+                    f"Flags: {tcp_layer.flags}"
+                )
 
         elif packet.haslayer(UDP):
             print(
