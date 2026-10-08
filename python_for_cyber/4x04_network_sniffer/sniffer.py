@@ -172,7 +172,7 @@ class Sniffer:
             "TCP": 0,
             "UDP": 0,
             "ICMP": 0
-  }
+        }
 
         self.processors = {
             TCP: ("TCP", TCPProcessor(search_string)),
