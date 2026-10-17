@@ -15,6 +15,7 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
+# Arguments: $1 = package name, $2 = target version
 package="$1"
 target_version="$2"
 
