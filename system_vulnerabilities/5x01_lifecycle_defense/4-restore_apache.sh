@@ -14,11 +14,11 @@ fi
 
 echo "Configuration test..."
 
-if apache2ctl configtest 2>&1 | grep -q "Syntax OK"; then
+if apache2ctl -t 2>&1 | grep -q "Syntax OK"; then
     echo "  Syntax: OK"
 else
     echo "  Syntax: FAILED"
-    apache2ctl configtest
+    apache2ctl -t
     exit 1
 fi
 
