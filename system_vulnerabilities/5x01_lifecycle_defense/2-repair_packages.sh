@@ -19,8 +19,7 @@ dpkg --configure -a
 echo
 echo "Fixing broken dependencies..."
 
-DEBIAN_FRONTEND=noninteractive apt-get \
-    --fix-broken install -y
+DEBIAN_FRONTEND=noninteractive apt-get install -f -y
 
 echo
 echo "Verification:"
