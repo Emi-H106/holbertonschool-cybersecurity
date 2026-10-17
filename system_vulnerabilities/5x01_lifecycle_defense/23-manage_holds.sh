@@ -15,7 +15,7 @@ fi
 
 action="$1"
 
-if [ "$action" = "list" ]; then
+if [ "$1" = "list" ]; then
 
     echo "=== Package Hold Registry ==="
     echo
@@ -78,7 +78,7 @@ if [ "$action" = "list" ]; then
     echo "Total holds: $total"
     echo "Holds older than 14 days: $old_holds"
 
-elif [ "$action" = "release" ]; then
+elif [ "$1" = "release" ]; then
 
     if [ "$#" -ne 2 ]; then
         usage
