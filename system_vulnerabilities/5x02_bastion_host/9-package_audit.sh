@@ -8,7 +8,7 @@ check_package() {
     local package="$1"
     local description="$2"
 
-    if [ "$(dpkg-query -W -f='${db:Status-Abbrev}' "$package" 2>/dev/null)" = "ii " ]; then
+    if dpkg -s "$package" 2>/dev/null | grep -q "^Status: install ok installed$"; then
         echo "  [FOUND] $package ($description)"
         return 0
     else
