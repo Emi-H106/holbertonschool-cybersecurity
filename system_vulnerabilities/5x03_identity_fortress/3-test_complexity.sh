@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # NovaTech - Password Complexity Testing
 
@@ -8,70 +9,73 @@ echo
 echo "Testing password policy enforcement..."
 echo
 
-if ! command -v python3 >/dev/null 2>&1; then
-    echo "ERROR: Python 3 is required."
+if ! command -v pwscore >/dev/null 2>&1; then
+    echo "ERROR: pwscore is not installed."
+    echo "Install: sudo apt-get install -y libpwquality-tools"
     exit 1
 fi
 
-if ! python3 -c "import pwquality" 2>/dev/null; then
-    echo "ERROR: Python pwquality module is missing."
-    echo "Install it with: sudo apt-get install -y python3-pwquality"
+test_number=0
+passed=0
+failed=0
+
+for test_pass in 'password' 'Password123' 'Ab1!' 'auditor2024' 'Str0ng!P@ssw0rd#2024'
+do
+    test_number=$((test_number + 1))
+
+    case "$test_pass" in
+        'password')
+            description="common word"
+            reason="Dictionary word"
+            expected="REJECTED"
+            ;;
+        'Password123')
+            description="no special char"
+            reason="Missing special character"
+            expected="REJECTED"
+            ;;
+        'Ab1!')
+            description="too short"
+            reason="Minimum length not met"
+            expected="REJECTED"
+            ;;
+        'auditor2024')
+            description="contains username"
+            reason="Contains username"
+            expected="REJECTED"
+            ;;
+        'Str0ng!P@ssw0rd#2024')
+            description="valid"
+            reason="Meets all requirements"
+            expected="ACCEPTED"
+            ;;
+    esac
+
+    echo "Test $test_number: \"$test_pass\" ($description)"
+
+    if printf '%s\n' "$test_pass" | pwscore >/dev/null 2>&1; then
+        result="ACCEPTED"
+    else
+        result="REJECTED"
+    fi
+
+    echo "  Result: $result"
+    echo "  Reason: $reason"
+
+    if [[ "$result" == "$expected" ]]; then
+        passed=$((passed + 1))
+    else
+        failed=$((failed + 1))
+        echo "  STATUS: FAILED"
+    fi
+
+    echo
+done
+
+if [[ "$failed" -eq 0 && "$passed" -eq 5 ]]; then
+    echo "All complexity tests: PASSED"
+    echo "Password policy is enforced correctly."
+else
+    echo "Complexity tests: FAILED ($passed/5 passed)"
     exit 1
 fi
-
-python3 <<'PY'
-import pwquality
-
-settings = pwquality.PWQSettings()
-settings.read_config()
-
-username = "auditor"
-
-tests = [
-    ("password", "common word", False, "Dictionary word"),
-    ("Password123", "no special char", False,
-     "Missing special character"),
-    ("Ab1!", "too short", False, "Minimum length not met"),
-    ("auditor2024", "contains username", False,
-     "Contains username"),
-    ("Str0ng!P@ssw0rd#2024", "valid", True,
-     "Meets all requirements"),
-]
-
-passed = 0
-
-for number, (password, description, expected, reason) in enumerate(
-    tests, start=1
-):
-    print(f'Test {number}: "{password}" ({description})')
-
-    try:
-        settings.check(password, None, username)
-        accepted = True
-        detail = ""
-    except pwquality.PWQError as error:
-        accepted = False
-        detail = str(error)
-
-    result = "ACCEPTED" if accepted else "REJECTED"
-
-    print(f"  Result: {result}")
-    print(f"  Reason: {reason}")
-
-    if detail:
-        print(f"  Policy feedback: {detail}")
-
-    if accepted == expected:
-        passed += 1
-    else:
-        print("  STATUS: FAILED")
-
-    print()
-
-if passed == len(tests):
-    print("All complexity tests: PASSED")
-    print("Password policy is enforced correctly.")
-else:
-    print(f"Complexity tests: FAILED ({passed}/{len(tests)} passed)")
-    raise SystemExit(1)
-PY
