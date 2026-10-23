@@ -1,25 +1,38 @@
+
 #!/bin/bash
 # NovaTech Solutions - Master Hardening Script
 # Target: Ubuntu 20.04
-# Purpose: Apply repeatable security hardening controls.
-# Run as: sudo bash 25-master_harden.sh
+# Purpose: Apply reusable and repeatable security controls.
+#
+# Usage:
+#   sudo bash 25-master_harden.sh
+#
+# Optional software removal (review dependencies first):
+#   sudo env REMOVE_DEV_TOOLS=yes bash 25-master_harden.sh
 #
 # WARNING:
 # Test on a disposable VM before production deployment.
-# Review network and SSH access before applying changes.
+# Ensure console access and a VM snapshot are available.
 
 set -Eeuo pipefail
 
 LOG_DIR="/var/log/hardening"
 LOG_FILE="$LOG_DIR/master-harden.log"
 BACKUP_DIR="/var/backups/novatech-hardening"
+
 SSH_CONFIG="/etc/ssh/sshd_config"
 SYSCTL_CONFIG="/etc/sysctl.d/99-novatech-hardening.conf"
 BANNER_FILE="/etc/issue.net"
 
+REMOVE_DEV_TOOLS="${REMOVE_DEV_TOOLS:-no}"
+
 # --------------------------------------------------
-# Initialization and logging
+# Logging and initialization
 # --------------------------------------------------
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+}
 
 initialize() {
     if [ "$EUID" -ne 0 ]; then
@@ -57,12 +70,8 @@ initialize() {
     fi
 }
 
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-}
-
 # --------------------------------------------------
-# Backup management
+# Configuration backup
 # --------------------------------------------------
 
 backup_file() {
@@ -84,7 +93,7 @@ backup_file() {
 }
 
 # --------------------------------------------------
-# SSH configuration
+# SSH configuration helpers
 # --------------------------------------------------
 
 set_sshd_option() {
@@ -92,20 +101,57 @@ set_sshd_option() {
     local value="$2"
     local file="$3"
 
-    # Remove active or commented copies of this option.
-    # Add one authoritative setting at the top.
-    sed -i -E \
-        "/^[[:space:]]*#?[[:space:]]*${key}[[:space:]]+/Id" \
-        "$file"
+    # Remove previous global copies of the option.
+    # Do not edit settings inside Match blocks.
+    local match_line
 
-    sed -i "1i ${key} ${value}" "$file"
+    match_line=$(grep -niE \
+        '^[[:space:]]*Match[[:space:]]+' \
+        "$file" | head -1 | cut -d: -f1 || true)
+
+    if [ -n "$match_line" ]; then
+        log "WARNING: SSH Match block detected; review overrides."
+    fi
+
+    # Insert an authoritative global setting at the top.
+    # Remove existing occurrences before the first Match block.
+    local temp_file
+    temp_file=$(mktemp)
+
+    awk -v key="$key" '
+        BEGIN { in_match=0 }
+        /^[[:space:]]*Match[[:space:]]+/ {
+            in_match=1
+        }
+        {
+            if (!in_match) {
+                line=$0
+                sub(/^[[:space:]]*#[[:space:]]*/, "", line)
+                split(line, fields, /[[:space:]]+/)
+                if (tolower(fields[1]) == tolower(key)) {
+                    next
+                }
+            }
+            print
+        }
+    ' "$file" > "$temp_file"
+
+    {
+        printf '%s %s\n' "$key" "$value"
+        cat "$temp_file"
+    } > "$file"
+
+    rm -f "$temp_file"
 }
+
+# --------------------------------------------------
+# SSH hardening
+# --------------------------------------------------
 
 harden_ssh() {
     log "Hardening SSH..."
 
-    if ! command -v sshd >/dev/null 2>&1 &&
-       [ ! -x /usr/sbin/sshd ]; then
+    if [ ! -x /usr/sbin/sshd ]; then
         log "WARNING: SSH server not installed; skipping."
         return 0
     fi
@@ -126,7 +172,6 @@ harden_ssh() {
     set_sshd_option "MaxAuthTries" "3" "$temp_config"
     set_sshd_option "X11Forwarding" "no" "$temp_config"
 
-    # Validate before replacing the active configuration.
     if /usr/sbin/sshd -t -f "$temp_config"; then
         cp "$temp_config" "$SSH_CONFIG"
         chmod 600 "$SSH_CONFIG"
@@ -166,7 +211,7 @@ harden_root() {
 }
 
 # --------------------------------------------------
-# Kernel and network security
+# Kernel and network hardening
 # --------------------------------------------------
 
 harden_sysctl() {
@@ -176,6 +221,7 @@ harden_sysctl() {
 
     cat > "$SYSCTL_CONFIG" <<'EOF'
 # NovaTech Solutions security baseline
+
 # Disable IP forwarding.
 net.ipv4.ip_forward = 0
 
@@ -197,72 +243,82 @@ net.ipv4.conf.all.log_martians = 1
 EOF
 
     chmod 644 "$SYSCTL_CONFIG"
-
     sysctl -p "$SYSCTL_CONFIG"
 
     log "Kernel and network hardening completed."
 }
 
 # --------------------------------------------------
-# Filesystem hardening
+# Filesystem configuration helpers
 # --------------------------------------------------
 
 ensure_fstab_entry() {
     local mountpoint="$1"
     local entry="$2"
 
-    if ! grep -Eq \
-        "^[^#][^[:space:]]+[[:space:]]+${mountpoint}[[:space:]]" \
-        /etc/fstab; then
-        echo "$entry" >> /etc/fstab
+    if ! awk -v target="$mountpoint" '
+        $1 !~ /^#/ && $2 == target {found=1}
+        END {exit !found}
+    ' /etc/fstab; then
+        printf '%s\n' "$entry" >> /etc/fstab
         log "Added fstab entry for $mountpoint."
     else
         log "Existing fstab entry found for $mountpoint."
     fi
 }
 
+# --------------------------------------------------
+# Filesystem hardening
+# --------------------------------------------------
+
 harden_filesystem() {
     log "Hardening temporary filesystems..."
 
     backup_file /etc/fstab
 
-    # Preserve an existing /tmp mount rather than
-    # automatically replacing its filesystem.
+    # Protect /tmp without replacing an existing mount.
     if mountpoint -q /tmp; then
-        log "WARNING: /tmp already mounted; review its options."
+        log "/tmp already mounted; checking restrictions."
+
+        if mount -o remount,nosuid,nodev,noexec /tmp; then
+            log "/tmp restrictions applied."
+        else
+            log "WARNING: Could not remount /tmp."
+        fi
     else
         ensure_fstab_entry \
             "/tmp" \
             "tmpfs /tmp tmpfs defaults,rw,nosuid,nodev,noexec,mode=1777 0 0"
 
-        log "/tmp hardening configured for next reboot."
+        log "/tmp restrictions configured for next reboot."
     fi
 
-    # Protect /dev/shm if it is mounted.
+    # Protect /dev/shm.
     if mountpoint -q /dev/shm; then
         if mount -o remount,nosuid,nodev,noexec /dev/shm; then
-            log "/dev/shm mount restrictions applied."
+            log "/dev/shm restrictions applied."
         else
             log "WARNING: Could not remount /dev/shm."
         fi
     fi
 
-    # Configure /dev/shm persistence.
-    if ! grep -Eq '^[^#].*[[:space:]]/dev/shm[[:space:]]' /etc/fstab; then
-        echo "tmpfs /dev/shm tmpfs defaults,nosuid,nodev,noexec 0 0" \
-            >> /etc/fstab
-        log "Added persistent /dev/shm restrictions."
-    fi
+    ensure_fstab_entry \
+        "/dev/shm" \
+        "tmpfs /dev/shm tmpfs defaults,nosuid,nodev,noexec 0 0"
 
-    # /var/tmp requires an explicit storage and persistence
-    # decision; do not automatically bind it to /tmp.
-    log "REVIEW: /var/tmp restrictions require service compatibility checks."
+    # Existing /var/tmp storage may need to persist across reboot.
+    # Do not replace it automatically with a temporary filesystem.
+    if mountpoint -q /var/tmp; then
+        log "/var/tmp is mounted; review mount restrictions."
+    else
+        log "REVIEW: /var/tmp needs a compatible hardening policy."
+    fi
 
     log "Filesystem hardening completed."
 }
 
 # --------------------------------------------------
-# Unnecessary service minimization
+# Service minimization
 # --------------------------------------------------
 
 minimize_services() {
@@ -275,20 +331,82 @@ minimize_services() {
             "${service}.service" --no-legend 2>/dev/null |
             grep -q "${service}.service"; then
 
-            systemctl disable --now "${service}.service" || \
+            if systemctl disable --now "${service}.service"; then
+                log "Disabled service: $service"
+            else
                 log "WARNING: Could not disable $service."
-
-            log "Reviewed service: $service"
+            fi
         else
             log "Service not installed: $service"
         fi
     done
 
-    log "Essential SSH and Apache services were not disabled."
+    # Avahi can be restarted through socket activation.
+    if systemctl list-unit-files \
+        avahi-daemon.socket --no-legend 2>/dev/null |
+        grep -q 'avahi-daemon.socket'; then
+
+        if systemctl disable --now avahi-daemon.socket; then
+            log "Disabled Avahi socket activation."
+        else
+            log "WARNING: Could not disable Avahi socket."
+        fi
+    fi
+
+    log "SSH and Apache were not disabled."
+    log "Service minimization completed."
 }
 
 # --------------------------------------------------
-# Legal warning banner
+# Software minimization
+# --------------------------------------------------
+
+minimize_software() {
+    log "Checking unnecessary software..."
+
+    # Compilers and development tools increase the attack surface.
+    # Removal is optional to avoid breaking applications.
+    #
+    # Enable with:
+    # sudo env REMOVE_DEV_TOOLS=yes bash 25-master_harden.sh
+
+    local package
+
+    for package in gcc build-essential; do
+        if dpkg-query -W -f='${Status}' "$package" 2>/dev/null |
+            grep -q "install ok installed"; then
+
+            log "Installed development package: $package"
+
+            if [ "$REMOVE_DEV_TOOLS" = "yes" ]; then
+                log "Removing unnecessary package: $package"
+
+                DEBIAN_FRONTEND=noninteractive \
+                    apt-get remove -y "$package"
+
+                log "Package removal completed: $package"
+            else
+                log "Keeping $package (removal not enabled)."
+            fi
+        else
+            log "Package not installed: $package"
+        fi
+    done
+
+    # Do not automatically remove diagnostic network tools.
+    # They may be required for authorized troubleshooting.
+    for package in nmap netcat-openbsd; do
+        if dpkg-query -W -f='${Status}' "$package" 2>/dev/null |
+            grep -q "install ok installed"; then
+            log "REVIEW: Network tool installed: $package"
+        fi
+    done
+
+    log "Software minimization completed."
+}
+
+# --------------------------------------------------
+# Legal SSH warning banner
 # --------------------------------------------------
 
 configure_banner() {
@@ -308,33 +426,37 @@ EOF
 
     chmod 644 "$BANNER_FILE"
 
-    if [ -f "$SSH_CONFIG" ]; then
-        backup_file "$SSH_CONFIG"
+    if [ ! -x /usr/sbin/sshd ] ||
+       [ ! -f "$SSH_CONFIG" ]; then
+        log "WARNING: SSH unavailable; banner file created only."
+        return 0
+    fi
 
-        local temp_config
-        temp_config=$(mktemp)
+    backup_file "$SSH_CONFIG"
 
-        cp -a "$SSH_CONFIG" "$temp_config"
+    local temp_config
+    temp_config=$(mktemp)
 
-        set_sshd_option "Banner" "$BANNER_FILE" "$temp_config"
+    cp -a "$SSH_CONFIG" "$temp_config"
 
-        if /usr/sbin/sshd -t -f "$temp_config"; then
-            cp "$temp_config" "$SSH_CONFIG"
-            chmod 600 "$SSH_CONFIG"
+    set_sshd_option "Banner" "$BANNER_FILE" "$temp_config"
 
-            if systemctl is-active --quiet ssh; then
-                systemctl reload ssh
-            fi
+    if /usr/sbin/sshd -t -f "$temp_config"; then
+        cp "$temp_config" "$SSH_CONFIG"
+        chmod 600 "$SSH_CONFIG"
 
-            log "SSH legal banner enabled."
-        else
-            log "ERROR: Banner configuration validation failed."
-            rm -f "$temp_config"
-            return 1
+        if systemctl is-active --quiet ssh; then
+            systemctl reload ssh
         fi
 
+        log "SSH legal banner enabled."
+    else
         rm -f "$temp_config"
+        log "ERROR: Banner configuration validation failed."
+        return 1
     fi
+
+    rm -f "$temp_config"
 }
 
 # --------------------------------------------------
@@ -347,14 +469,20 @@ verify_hardening() {
     if [ -x /usr/sbin/sshd ]; then
         /usr/sbin/sshd -t
         log "SSH configuration: valid."
+
+        /usr/sbin/sshd -T |
+            grep -Ei '^(permitrootlogin|maxauthtries|x11forwarding|banner) ' \
+            || true
     fi
 
     log "Root account status: $(passwd -S root | awk '{print $2}')"
+
     log "IP forwarding: $(sysctl -n net.ipv4.ip_forward)"
 
     if command -v findmnt >/dev/null 2>&1; then
         log "/tmp options: $(findmnt -n -o OPTIONS /tmp || echo unavailable)"
         log "/dev/shm options: $(findmnt -n -o OPTIONS /dev/shm || echo unavailable)"
+        log "/var/tmp options: $(findmnt -n -o OPTIONS /var/tmp || echo unavailable)"
     fi
 
     log "Verification completed."
@@ -374,6 +502,7 @@ main() {
     harden_ssh
     harden_filesystem
     minimize_services
+    minimize_software
     configure_banner
     verify_hardening
 
