@@ -89,7 +89,11 @@ while IFS=: read -r username _ uid gid gecos home shell; do
         continue
     fi
 
-    chage -M 90 -m 1 -W 14 "$username"
+    user="$username"
+
+    chage -M 90 $user
+    chage -m 1 "$user"
+    chage -W 14 "$user" 
 
     echo "  ${username}: Max=90, Min=1, Warn=14"
 
