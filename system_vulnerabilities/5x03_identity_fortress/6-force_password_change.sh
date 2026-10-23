@@ -11,7 +11,7 @@ if [[ "$EUID" -ne 0 ]]; then
     exit 1
 fi
 
-if [[ "$#" -eq 0 ]]; then
+if [[ $# -eq 0 ]]; then
     echo "Usage: $0 username [username ...]"
     exit 1
 fi
