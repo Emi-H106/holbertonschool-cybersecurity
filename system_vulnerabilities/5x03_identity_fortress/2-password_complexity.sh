@@ -1,6 +1,11 @@
 #!/bin/bash
 # NovaTech - Password Complexity Configuration
 # Configure pam_pwquality for strong password enforcement.
+#
+# Package repair is handled separately in the 5x01 patch management task.
+# The repair procedure uses dpkg --configure -a to finish interrupted
+# package configuration before attempting further installations.
+# This script does not perform automatic dpkg repairs.
 
 set -Eeuo pipefail
 
