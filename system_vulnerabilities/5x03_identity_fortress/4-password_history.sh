@@ -30,15 +30,15 @@ fi
 
 echo "Creating password history file..."
 
-if [[ ! -f "$HISTORY_FILE" ]]; then
-    touch "$HISTORY_FILE"
-    echo "  $HISTORY_FILE: Created"
+if [[ ! -f /etc/security/opasswd ]]; then
+    touch /etc/security/opasswd
+    echo "  /etc/security/opasswd: Created"
 else
-    echo "  $HISTORY_FILE: Already exists"
+    echo "  /etc/security/opasswd: Already exists"
 fi
 
-chown root:root "$HISTORY_FILE"
-chmod 600 "$HISTORY_FILE"
+chown root:root /etc/security/opasswd
+chmod 600 /etc/security/opasswd
 
 echo
 echo "Backing up PAM configuration..."
