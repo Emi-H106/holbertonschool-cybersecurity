@@ -53,7 +53,7 @@ do
 
     echo "Test $test_number: \"$test_pass\" ($description)"
 
-    if printf '%s\n' "$test_pass" | pwscore >/dev/null 2>&1; then
+    if echo "$test_pass" | passwd auditor >/dev/null 2>&1; then
         result="ACCEPTED"
     else
         result="REJECTED"
