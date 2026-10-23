@@ -22,8 +22,8 @@ fi
 echo "Configuring pam_pwhistory..."
 echo
 
-if [[ ! -f /lib/x86_64-linux-gnu/security/pam_pwhistory.so ]] &&
-   [[ ! -f /usr/lib/x86_64-linux-gnu/security/pam_pwhistory.so ]]; then
+if ! find /lib /usr/lib -name pam_pwhistory.so \
+    -print -quit 2>/dev/null | grep -q .; then
     echo "ERROR: pam_pwhistory.so not found."
     exit 1
 fi
@@ -41,37 +41,44 @@ chown root:root "$HISTORY_FILE"
 chmod 600 "$HISTORY_FILE"
 
 echo
-echo "Updating $PAM_FILE..."
+echo "Backing up PAM configuration..."
 
-cp -a "$PAM_FILE" "${PAM_FILE}.backup"
+if [[ ! -f /etc/pam.d/common-password.bak ]]; then
+    cp /etc/pam.d/common-password /etc/pam.d/common-password.bak
+    echo "  /etc/pam.d/common-password.bak created"
+else
+    echo "  /etc/pam.d/common-password.bak already exists"
+fi
+
+echo
+echo "Updating $PAM_FILE..."
 
 # Remove existing active pam_pwhistory entries.
 sed -i -E \
     '/^[[:space:]]*password[[:space:]]+.*pam_pwhistory\.so/d' \
     "$PAM_FILE"
 
-# Insert pam_pwhistory before pam_unix.
+# Ensure pam_unix exists before modifying the PAM stack.
+if ! grep -Eq \
+    '^[[:space:]]*password[[:space:]]+.*pam_unix\.so' \
+    "$PAM_FILE"; then
+    echo "ERROR: pam_unix.so not found."
+    exit 1
+fi
+
+# Insert pam_pwhistory immediately before pam_unix.
 awk '
     !inserted && /^[[:space:]]*password[[:space:]]+.*pam_unix\.so/ {
         print "password required pam_pwhistory.so remember=5 use_authtok"
         inserted=1
     }
     { print }
-    END {
-        if (!inserted) {
-            exit 1
-        }
-    }
-' "$PAM_FILE" > "${PAM_FILE}.tmp" || {
-    rm -f "${PAM_FILE}.tmp"
-    echo "ERROR: pam_unix.so not found."
-    exit 1
-}
+' "$PAM_FILE" > "${PAM_FILE}.tmp"
 
 cat "${PAM_FILE}.tmp" > "$PAM_FILE"
 rm -f "${PAM_FILE}.tmp"
 
-# Ensure pam_unix uses the password token from earlier PAM modules.
+# Ensure pam_unix uses the token passed by earlier PAM modules.
 sed -i -E \
     '/^[[:space:]]*password[[:space:]]+.*pam_unix\.so/ {
         /use_authtok/! s/pam_unix\.so/pam_unix.so use_authtok/
@@ -83,7 +90,8 @@ echo
 echo "Configuration:"
 echo "  Passwords remembered: 5"
 
-if grep -Eq '^[[:space:]]*password[[:space:]]+.*pam_unix\.so.*sha512' \
+if grep -Eq \
+    '^[[:space:]]*password[[:space:]]+.*pam_unix\.so.*sha512' \
     "$PAM_FILE"; then
     echo "  Hash algorithm: sha512"
 else
@@ -96,10 +104,11 @@ echo "Testing..."
 if grep -Eq \
     '^[[:space:]]*password[[:space:]]+.*pam_pwhistory\.so.*remember=5' \
     "$PAM_FILE"; then
+
     echo "  Password history configuration: VERIFIED"
     echo
     echo "Password history enforcement: CONFIGURED"
-    echo "Users cannot reuse their last 5 passwords when the policy is enforced."
+    echo "Users cannot reuse their last 5 passwords when enforced."
 else
     echo "  Password history configuration: FAILED"
     exit 1
