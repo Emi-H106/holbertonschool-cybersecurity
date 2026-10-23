@@ -63,8 +63,11 @@ done
 echo "Verification:"
 
 if [[ -n "$first_user" ]]; then
-    echo "  chage -l $first_user | grep 'Password expires'"
-    chage -l "$first_user" | grep -E \
+    user="$first_user"
+
+    echo "  chage -l $user | grep 'Password expires'"
+
+    chage -l "$user" | grep -E \
         '^(Last password change|Password expires)' || true
 else
     echo "  No users were updated."
