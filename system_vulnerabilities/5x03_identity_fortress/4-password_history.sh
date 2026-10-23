@@ -101,6 +101,14 @@ fi
 echo
 echo "Testing..."
 
+# Verify pam_pwhistory configuration
+if grep -E 'pam_pwhistory.so' /etc/pam.d/common-password; then
+    echo "  pam_pwhistory module: FOUND"
+else
+    echo "  ERROR: pam_pwhistory module not found."
+    exit 1
+fi
+
 if grep -Eq \
     '^[[:space:]]*password[[:space:]]+.*pam_pwhistory\.so.*remember=5' \
     "$PAM_FILE"; then
