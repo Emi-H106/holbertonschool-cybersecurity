@@ -45,6 +45,11 @@ update_setting() {
     echo "  ${key}: ${old_value:-not set} -> ${new_value}"
 }
 
+# Password aging policy:
+# PASS_MAX_DAYS 90
+# PASS_MIN_DAYS 1
+# PASS_WARN_AGE 14
+
 update_setting "PASS_MAX_DAYS" "90"
 update_setting "PASS_MIN_DAYS" "1"
 update_setting "PASS_WARN_AGE" "14"
