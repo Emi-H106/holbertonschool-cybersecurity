@@ -3,7 +3,7 @@
 
 set -uo pipefail
 
-echo "=== Password Complexity Testing ==="
+echo '=== Password Complexity Testing ==='
 echo
 echo "Testing password policy enforcement..."
 echo
