@@ -2,7 +2,10 @@
 
 # NovaTech - PAM Configuration Audit
 # Read-only audit of authentication settings
-#
+# Note: Package-manager lock handling belongs to the 5x01 patch management task.
+# Before removing locks, the separate unlock script checks running processes
+# using pgrep for apt|dpkg and checks lock files using fuser and lsof.
+# This PAM audit does not remove package-manager locks.
 # Package-manager lock locations (documented only):
 # /var/lib/dpkg/lock
 # /var/lib/dpkg/lock-frontend
