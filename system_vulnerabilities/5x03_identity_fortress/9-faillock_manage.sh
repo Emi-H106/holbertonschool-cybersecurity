@@ -156,7 +156,7 @@ case "$1" in
         echo
         echo "Recent failures:"
 
-        faillock --user "$user"
+        faillock --user "$2"
 
         echo
 
