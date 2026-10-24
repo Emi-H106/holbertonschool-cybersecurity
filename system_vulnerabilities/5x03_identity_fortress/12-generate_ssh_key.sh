@@ -37,7 +37,7 @@ echo
 
 # Generate SSH key pair.
 # ssh-keygen prompts for a passphrase interactively.
-ssh-keygen -t ed25519 -a 100 -f "$PRIVATE_KEY"
+ssh-keygen -t ed25519 -a 100 -f $HOME/.ssh/id_ed25519
 
 echo
 echo "Key pair generated:"
