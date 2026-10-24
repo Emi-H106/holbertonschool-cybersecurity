@@ -180,7 +180,7 @@ case "$1" in
             exit 1
         fi
 
-        faillock --user "$user" --reset
+        faillock --user "$2" --reset
 
         echo "Account $user: Lock cleared"
         ;;
