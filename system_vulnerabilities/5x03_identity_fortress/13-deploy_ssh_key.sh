@@ -8,8 +8,14 @@ echo "=== SSH Key Deployment ==="
 echo
 
 # Check arguments
-if [[ $# -ne 1 ]]; then
+if [[ $# -eq 0 ]]; then
+    echo "ERROR: No public key provided."
     echo "Usage: $0 'ssh-ed25519 PUBLIC_KEY user@host'"
+    exit 1
+fi
+
+if [[ $# -ne 1 ]]; then
+    echo "ERROR: Exactly one public key is required."
     exit 1
 fi
 
