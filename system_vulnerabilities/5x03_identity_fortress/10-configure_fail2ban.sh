@@ -20,8 +20,8 @@ echo "Installing fail2ban..."
 export DEBIAN_FRONTEND=noninteractive
 
 if ! command -v fail2ban-client >/dev/null 2>&1; then
-    apt-get update
-    apt-get install -y fail2ban
+    apt update
+    apt install -y fail2ban
 fi
 
 echo "  fail2ban: Installed"
