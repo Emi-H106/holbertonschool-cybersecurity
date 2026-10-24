@@ -108,84 +108,77 @@ get_unlock_time() {
 }
 
 # Validate supported commands.
-if [ "$1" != "status" ] && [ "$1" != "show" ] && [ "$1" != "reset" ]; then
+if [ "$1" = "status" ]; then
+
+    if [[ $# -ne 1 ]]; then
+        usage
+    fi
+
+    echo "=== Faillock Status ==="
+    echo
+    echo "Locked accounts:"
+
+    found=0
+
+    while IFS=: read -r user _; do
+        if is_locked "$user"; then
+            count=$(get_failure_count "$user")
+            unlock=$(get_unlock_time "$user")
+
+            echo "  $user: $count failures (locked until $unlock)"
+            found=1
+        fi
+    done < /etc/passwd
+
+    if [[ $found -eq 0 ]]; then
+        echo "  No locked accounts found."
+    fi
+
+elif [ "$1" = "show" ]; then
+
+    if [[ $# -ne 2 ]]; then
+        usage
+    fi
+
+    user="$2"
+
+    if ! id "$user" >/dev/null 2>&1; then
+        echo "ERROR: User '$user' does not exist."
+        exit 1
+    fi
+
+    echo "=== Faillock Details: $user ==="
+    echo
+    echo "Recent failures:"
+
+    faillock --user "$2"
+
+    echo
+
+    if is_locked "$user"; then
+        echo "Status: LOCKED"
+        echo "Unlocks automatically at: $(get_unlock_time "$user")"
+    else
+        echo "Status: NOT LOCKED"
+    fi
+
+elif [ "$1" = "reset" ]; then
+
+    if [[ $# -ne 2 ]]; then
+        usage
+    fi
+
+    user="$2"
+
+    if ! id "$user" >/dev/null 2>&1; then
+        echo "ERROR: User '$user' does not exist."
+        exit 1
+    fi
+
+    faillock --user "$2" --reset
+
+    echo "Account $user: Lock cleared"
+
+else
     usage
 fi
-
-case "$1" in
-
-    status)
-        if [[ $# -ne 1 ]]; then
-            usage
-        fi
-
-        echo "=== Faillock Status ==="
-        echo
-        echo "Locked accounts:"
-
-        found=0
-
-        while IFS=: read -r user _; do
-            if is_locked "$user"; then
-                count=$(get_failure_count "$user")
-                unlock=$(get_unlock_time "$user")
-
-                echo "  $user: $count failures (locked until $unlock)"
-                found=1
-            fi
-        done < /etc/passwd
-
-        if [[ $found -eq 0 ]]; then
-            echo "  No locked accounts found."
-        fi
-        ;;
-
-    show)
-        if [[ $# -ne 2 ]]; then
-            usage
-        fi
-
-        user="$2"
-
-        if ! id "$user" >/dev/null 2>&1; then
-            echo "ERROR: User '$user' does not exist."
-            exit 1
-        fi
-
-        echo "=== Faillock Details: $user ==="
-        echo
-        echo "Recent failures:"
-
-        faillock --user "$2"
-
-        echo
-
-        if is_locked "$user"; then
-            echo "Status: LOCKED"
-            echo "Unlocks automatically at: $(get_unlock_time "$user")"
-        else
-            echo "Status: NOT LOCKED"
-        fi
-        ;;
-
-    reset)
-        if [[ $# -ne 2 ]]; then
-            usage
-        fi
-
-        user="$2"
-
-        if ! id "$user" >/dev/null 2>&1; then
-            echo "ERROR: User '$user' does not exist."
-            exit 1
-        fi
-
-        faillock --user "$2" --reset
-
-        echo "Account $user: Lock cleared"
-        ;;
-
-    *)
-        usage
-        ;;
-esac
