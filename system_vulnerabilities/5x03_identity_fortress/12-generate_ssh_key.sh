@@ -55,7 +55,7 @@ echo "  Public key: 644"
 echo
 
 echo "Public key fingerprint:"
-ssh-keygen -lf "$PUBLIC_KEY" -E sha256
+ssh-keygen -lf $HOME/.ssh/id_ed25519.pub -E sha256
 
 echo
 echo "Your public key:"
