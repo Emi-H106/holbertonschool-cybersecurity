@@ -108,7 +108,7 @@ get_unlock_time() {
 }
 
 # Validate supported commands.
-if [ "$1" = "status" ]; then
+if [ $1 = "status" ]; then
 
     if [[ $# -ne 1 ]]; then
         usage
@@ -134,7 +134,7 @@ if [ "$1" = "status" ]; then
         echo "  No locked accounts found."
     fi
 
-elif [ "$1" = "show" ]; then
+elif [ $1 = "show" ]; then
 
     if [[ $# -ne 2 ]]; then
         usage
@@ -162,7 +162,7 @@ elif [ "$1" = "show" ]; then
         echo "Status: NOT LOCKED"
     fi
 
-elif [ "$1" = "reset" ]; then
+elif [ $1 = "reset" ]; then
 
     if [[ $# -ne 2 ]]; then
         usage
