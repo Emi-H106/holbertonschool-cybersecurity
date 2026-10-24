@@ -107,6 +107,11 @@ get_unlock_time() {
     date -d "@$((timestamp + UNLOCK_TIME))" +%H:%M:%S
 }
 
+# Validate supported commands.
+if [ "$1" != "status" ] && [ "$1" != "show" ] && [ "$1" != "reset" ]; then
+    usage
+fi
+
 case "$1" in
 
     status)
