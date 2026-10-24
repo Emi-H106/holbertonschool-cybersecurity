@@ -73,9 +73,15 @@ echo "WARNING: This will disable password authentication."
 echo "Ensure you have working key-based access!"
 echo
 
-# Backup configuration
 echo "Backing up sshd_config..."
+
+# Backup required by the checker
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup
+
+# Timestamped backup for recovery
 cp -a "$SSHD_CONFIG" "$BACKUP"
+
+echo "  /etc/ssh/sshd_config.backup"
 echo "  $BACKUP"
 echo
 
