@@ -71,7 +71,7 @@ fail2ban-client -t
 echo
 echo "Starting fail2ban..."
 
-systemctl enable fail2ban
+systemctl enable --now fail2ban
 systemctl restart fail2ban
 
 if systemctl is-active --quiet fail2ban; then
