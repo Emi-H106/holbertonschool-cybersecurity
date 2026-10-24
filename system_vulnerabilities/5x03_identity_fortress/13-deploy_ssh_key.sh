@@ -84,7 +84,7 @@ if awk -v key="$KEY_DATA" '
 ' "$AUTHORIZED_KEYS"; then
     echo "  Key already exists"
 else
-    printf '%s\n' "$PUBLIC_KEY" >> "$AUTHORIZED_KEYS"
+    printf '%s\n' "$PUBLIC_KEY" >> $HOME/.ssh/authorized_keys
     echo "  Key added successfully"
 fi
 
@@ -92,7 +92,7 @@ echo
 echo "Setting permissions..."
 
 chmod 700 "$SSH_DIR"
-chmod 600 "$AUTHORIZED_KEYS"
+chmod 600 $HOME/.ssh/authorized_keys
 
 echo "  authorized_keys: 600"
 echo
