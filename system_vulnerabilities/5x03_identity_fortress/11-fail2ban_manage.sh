@@ -123,7 +123,7 @@ elif [ $1 == "unban" ]; then
     fi
 
     # Unban the IP address.
-    fail2ban-client set "$JAIL" unbanip "$IP"
+    fail2ban-client set sshd unbanip $2
 
     echo "IP $IP unbanned from jail $JAIL"
 
