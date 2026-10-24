@@ -1,0 +1,59 @@
+NovaTech Solutions - Emergency Access Procedures
+Document owner: Security Operations / Infrastructure Team
+Version: 1.0
+Scope: Authorized emergency access to Ubuntu SSH servers using public-key + TOTP MFA
+
+1. LOST PHONE OR TOTP DEVICE
+
+1.1 Report the lost, stolen, or unavailable authenticator immediately to the service desk and Security Operations. Record the incident ticket, affected account, device, and time.
+1.2 Verify the user's identity through an approved independent channel (for example, an in-person check or a pre-registered callback). Do not rely solely on an email or message from the locked-out account.
+1.3 Determine whether the device may be compromised. If stolen or suspected compromised, revoke relevant sessions and device access, and follow the organization's incident response process.
+1.4 Use an unused emergency scratch code if one is available. Otherwise request the controlled emergency-access procedure in Section 3.
+1.5 Once access is restored, enroll a replacement authenticator, securely regenerate the TOTP secret and recovery codes, and invalidate the old secret. Confirm a fresh login with both factors.
+1.6 Close the incident only after documenting the actions, approvals, and verification results.
+
+2. EMERGENCY SCRATCH CODES
+
+2.1 During initial enrollment, the user must store Google Authenticator emergency scratch codes in an approved secure location, separate from the phone and SSH private key (for example, an enterprise password vault).
+2.2 A scratch code is a single-use substitute for a TOTP code, NOT a substitute for the SSH private key. The user must still authenticate with their authorized SSH key.
+2.3 At the SSH verification-code prompt, enter one unused scratch code instead of the current six-digit TOTP code.
+2.4 Mark the code as consumed. Never share codes in tickets, chat, email, screenshots, or shell history.
+2.5 After regaining access, enroll a new authenticator and regenerate recovery codes; store the replacements securely.
+
+3. TEMPORARY MFA BYPASS FOR EMERGENCIES
+
+3.1 Use a bypass only if recovery codes are unavailable and business-critical access cannot wait. Require an incident ticket, identity verification, documented business justification, and approval from Security Operations plus an authorized system owner (two-person approval).
+3.2 Prefer an audited out-of-band VM/hypervisor console or a pre-established break-glass account protected by a separate, strong authentication mechanism. Do not broadly disable MFA for all SSH users.
+3.3 Restrict any temporary exception to the named account, designated source, required host, and shortest possible period. Keep SSH public-key authentication mandatory. Never enable password-only or anonymous access.
+3.4 If an SSH/PAM exception is technically necessary, an authorized administrator must back up the relevant files, implement a narrowly scoped and reviewed change from the console, validate with 'sshd -t' and 'sshd -T -C ...', and reload SSH. Keep an existing console session available for rollback. PAM changes require independent review because 'sshd -t' does not validate PAM logic.
+3.5 Monitor the emergency session and record all privileged actions. Set a definite expiry and assign an owner to remove the exception.
+3.6 Immediately after recovery, remove the exception, restore normal MFA requirements, validate configuration and a new key-plus-TOTP login, and review the audit logs.
+
+4. ROOT ACCESS RECOVERY
+
+4.1 Use the approved hypervisor/physical console, not an unauthenticated network workaround. Verify authorization and record the incident before proceeding.
+4.2 Prefer a working, authorized sudo-capable administrator account to restore access. If none is available, use the organization's documented recovery-console or rescue-mode process with two-person authorization.
+4.3 In recovery mode, restore a verified backup of SSH/PAM configuration or repair the affected administrator's access. If credentials must be reset, use a temporary strong credential handled through the approved secrets vault, then rotate it after recovery.
+4.4 Preserve logs and evidence where possible. Validate SSH/PAM configuration, filesystem permissions, sudo access, and normal key-plus-TOTP login before ending the recovery session.
+4.5 Do not leave direct root SSH login, password authentication, or MFA bypass enabled as a permanent recovery measure.
+
+5. AUDIT TRAIL REQUIREMENTS
+
+5.1 Every emergency-access event must have a unique ticket with the requester, affected account/host, reason, impact, and start/end timestamps (UTC).
+5.2 Record who verified identity, who approved the exception, the exact access method, the scope and expiration, and who executed each change.
+5.3 Record configuration changes, backup locations, validation results, privileged commands, and the restoration of normal MFA. Do not record TOTP secrets, scratch codes, or private keys.
+5.4 Collect relevant SSH, PAM, sudo, and system logs (for example, /var/log/auth.log and journalctl), and forward them to centralized, access-controlled logging where available. Protect records against tampering and follow the organization's retention policy.
+5.5 Security Operations must review the event after recovery, confirm the bypass is removed, investigate suspicious activity, and document corrective actions and lessons learned.
+
+FINAL CHECKLIST
+[ ] Identity independently verified
+[ ] Incident ticket and approvals recorded
+[ ] Least-privilege emergency access used
+[ ] SSH private-key requirement maintained
+[ ] Emergency actions monitored and logged
+[ ] TOTP enrollment and recovery codes restored
+[ ] Temporary exceptions removed
+[ ] Fresh two-factor SSH login verified
+[ ] Security review completed and ticket closed
+
+Security principle: Emergency access must be possible, but limited, approved, logged, and promptly reversed.
