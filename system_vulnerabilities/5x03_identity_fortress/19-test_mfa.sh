@@ -98,8 +98,8 @@ SSH_OUTPUT=$(timeout 10 ssh \
     "$TARGET_USER@$TARGET_HOST" true 2>&1) && SSH_RC=0 || SSH_RC=$?
 
 if [[ $SSH_RC -ne 0 ]] &&
-   grep -qx \
-   'authenticationmethods publickey,keyboard-interactive' \
+   grep -qix \
+   'AuthenticationMethods publickey,keyboard-interactive' \
    <<< "$EFFECTIVE_CONFIG"; then
 
     pass
@@ -128,8 +128,8 @@ echo
 # Test 4: SSH configuration
 echo "Test 4: SSH configuration check"
 
-if grep -qx \
-    'authenticationmethods publickey,keyboard-interactive' \
+if grep -qix \
+    'AuthenticationMethods publickey,keyboard-interactive' \
     <<< "$EFFECTIVE_CONFIG"; then
 
     echo "  AuthenticationMethods: publickey,keyboard-interactive"
@@ -139,7 +139,7 @@ else
     FAILED=$((FAILED + 1))
 fi
 
-if grep -qx 'kbdinteractiveauthentication yes' \
+if grep -qix 'kbdinteractiveauthentication yes' \
     <<< "$EFFECTIVE_CONFIG"; then
 
     echo "  ChallengeResponseAuthentication: yes"
