@@ -47,7 +47,7 @@ echo
 
 echo "Setting permissions..."
 
-chmod 600 "$PRIVATE_KEY"
+chmod 600 $HOME/.ssh/id_ed25519
 chmod 644 "$PUBLIC_KEY"
 
 echo "  Private key: 600 (owner read/write only)"
