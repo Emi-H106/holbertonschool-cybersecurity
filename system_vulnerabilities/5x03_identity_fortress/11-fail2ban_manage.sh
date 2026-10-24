@@ -60,7 +60,7 @@ if [ $1 == "status" ]; then
     echo
     echo "[$JAIL] Statistics:"
 
-    if fail2ban-client status "$JAIL"; then
+    if fail2ban-client status sshd; then
         echo
         echo "fail2ban monitoring: ACTIVE"
     else
