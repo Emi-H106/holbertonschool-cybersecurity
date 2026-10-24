@@ -1,0 +1,110 @@
+NOVATECH SOLUTIONS
+IDENTITY SECURITY POLICY
+
+Document Owner: Chief Information Security Officer (CISO)
+Version: 1.0
+Status: Draft for Approval
+Scope: All employees, contractors, administrators, service accounts, and systems
+Review Cycle: Annually and after significant security incidents or changes
+
+1. PURPOSE AND RESPONSIBILITIES
+This policy establishes minimum requirements for identity management,
+authentication, privileged access, and account recovery. All users must
+comply. IT administers access controls; managers approve business access;
+the Security team monitors compliance and investigates exceptions.
+
+2. PASSWORD POLICY (COMPLEXITY, HISTORY, AGING)
+- Passwords must be at least 14 characters long; longer passphrases are encouraged.
+- Use a mix of character types where required by the system; prioritize
+  length, uniqueness, and resistance to commonly used or breached passwords.
+- Passwords must not contain easily guessed personal or company information.
+- Reuse of the previous 10 passwords is prohibited where technically supported.
+- Default and temporary passwords must be changed at first use.
+- Routine expiration is not required for ordinary user passwords unless
+  mandated by a specific compliance obligation. Reset passwords immediately
+  if compromise is suspected, after confirmed disclosure, or when required
+  by an approved risk assessment.
+- Passwords must not be shared or stored in plaintext. Approved password
+  managers are permitted and encouraged.
+
+3. ACCOUNT LOCKOUT POLICY
+- After 5 consecutive failed authentication attempts, the account must be
+  temporarily locked for at least 15 minutes, or until an authorized reset.
+- Failed-login counters should reset after a defined observation period,
+  normally 15 minutes without further failures.
+- Authentication failures and lockouts must be logged and monitored.
+- Security must investigate repeated failures, distributed guessing, and
+  suspicious lockouts. Unlock requests require identity verification.
+- Controls must account for denial-of-service risks from deliberate lockouts.
+
+4. SSH ACCESS POLICY
+- SSH access is permitted only for authorized users and approved systems.
+- SSH public-key authentication is required; password-based SSH login is
+  disabled on managed servers.
+- ED25519 keys are preferred. Private keys must be protected, never shared,
+  and stored with restrictive file permissions.
+- SSH authorized_keys must be reviewed periodically and stale keys removed.
+- Direct root SSH login is prohibited; administrators use named accounts
+  and approved sudo elevation with appropriate logging.
+- SSH services must use supported versions, approved network restrictions,
+  and secure configurations. Configuration changes require validation
+  (sshd -t), a backup, and a tested recovery path before reload.
+
+5. MULTI-FACTOR AUTHENTICATION (MFA) REQUIREMENTS
+- MFA is mandatory for privileged accounts, remote administrative access,
+  and other high-risk systems designated by Security.
+- SSH administrative access requires both a valid public key and a separate
+  TOTP factor, enforced through PAM and AuthenticationMethods where deployed.
+- Each user must enroll their own authenticator; TOTP secrets and recovery
+  codes must be stored securely and never shared.
+- MFA enrollment and reset require identity verification. Any exception
+  must be approved, documented, time-limited, and monitored.
+- Loss of an authenticator must be reported promptly to IT/Security.
+
+6. ACCOUNT LIFECYCLE
+Creation:
+- Accounts require a documented request, manager approval, a unique user
+  identity, and least-privilege access appropriate to the role.
+- Privileged access requires additional approval and MFA enrollment.
+Modification:
+- Access changes due to transfers or role changes require documented
+  authorization. Remove permissions no longer needed promptly.
+- Access rights must be reviewed periodically, at least quarterly for
+  privileged accounts and annually for standard accounts.
+Termination:
+- Disable interactive access and revoke active sessions, SSH keys, tokens,
+  and MFA credentials promptly upon termination or loss of authorization.
+- Transfer ownership of business data according to retention requirements.
+- Delete accounts only after applicable legal, operational, and audit
+  retention obligations have been satisfied.
+Service accounts:
+- Must have an owner, narrowly scoped permissions, no unnecessary
+  interactive login, and documented credential rotation procedures.
+
+7. EMERGENCY ACCESS PROCEDURES (SUMMARY)
+- A user who loses a TOTP device must report it immediately and complete
+  identity verification through an approved independent channel.
+- Use a previously issued, securely stored, single-use emergency scratch
+  code where available. Re-enroll MFA and replace recovery codes afterward.
+- If recovery codes are unavailable, authorized administrators may use
+  controlled console or out-of-band access to restore the user's MFA.
+- Temporary MFA bypass is a last resort: require incident/ticket tracking,
+  Security approval, a narrow scope, an expiration time, and monitoring.
+  Restore MFA immediately after recovery and validate access controls.
+- Root recovery must use authorized console or recovery mechanisms, never
+  shared root credentials or unrecorded bypasses.
+- Record the requester, approver, affected accounts/systems, justification,
+  timestamps, actions taken, and restoration confirmation. Protect logs
+  from alteration; never record secrets or one-time codes.
+- Refer to 20-emergency_procedures.txt for the detailed procedure.
+
+8. COMPLIANCE, EXCEPTIONS, AND REVIEW
+- Violations must be reported to Security and addressed according to
+  organizational disciplinary and incident-response procedures.
+- Exceptions require written CISO or delegated Security approval, a risk
+  assessment, compensating controls, and a defined expiration/review date.
+- IT and Security will review this policy at least annually and update it
+  when threats, systems, or legal obligations change.
+
+Approval: Pending CISO / Management approval
+Effective Date: Upon approval
