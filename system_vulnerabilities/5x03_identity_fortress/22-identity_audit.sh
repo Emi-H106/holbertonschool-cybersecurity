@@ -17,15 +17,59 @@ check() {
     fi
 }
 
-pam_has() { grep -Eqs "$1" /etc/pam.d/common-password /etc/pam.d/common-auth /etc/pam.d/sshd 2>/dev/null; }
-minlen_12() { grep -Eqs '(^|[[:space:]])minlen[[:space:]]*=[[:space:]]*(1[2-9]|[2-9][0-9])([[:space:]]|$)' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf /etc/pam.d/common-password 2>/dev/null; }
-history_5() { grep -Eqs '(^|[[:space:]])(remember[[:space:]]*=[[:space:]]*[5-9]|remember[[:space:]]*=[[:space:]]*[1-9][0-9]+)([[:space:]]|$)' /etc/pam.d/common-password /etc/security/pwhistory.conf 2>/dev/null; }
-aging_90() { grep -Eqs '^[[:space:]]*PASS_MAX_DAYS[[:space:]]+(90|[1-9]|[1-8][0-9])[[:space:]]*($|#)' /etc/login.defs 2>/dev/null; }
-faillock_active() { pam_has '^[[:space:]]*auth[[:space:]].*pam_faillock\.so'; }
-faillock_5() { grep -Eqs '^[[:space:]]*deny[[:space:]]*=[[:space:]]*5([[:space:]]|$)' /etc/security/faillock.conf 2>/dev/null || grep -Eqs 'pam_faillock\.so.*deny=5([[:space:]]|$)' /etc/pam.d/common-auth 2>/dev/null; }
-fail2ban_active() { systemctl is-active --quiet fail2ban && fail2ban-client status sshd >/dev/null 2>&1; }
-sshd_value() { [[ "$(sshd -T 2>/dev/null | awk -v k="$1" '$1==k {print $2; exit}')" == "$2" ]]; }
-mfa_enabled() { sshd -T 2>/dev/null | grep -Eq '^authenticationmethods publickey,keyboard-interactive(:pam)?([[:space:]]|$)' && sshd_value kbdinteractiveauthentication yes && sshd_value usepam yes && grep -Eqs '^[[:space:]]*auth[[:space:]]+required[[:space:]]+pam_google_authenticator\.so([[:space:]]|$)' /etc/pam.d/sshd; }
+pam_has() {
+    grep -Eqs "$1" \
+        /etc/pam.d/common-password \
+        /etc/pam.d/common-auth \
+        /etc/pam.d/sshd 2>/dev/null
+}
+
+minlen_12() {
+    grep -Eqs '(^|[[:space:]])minlen[[:space:]]*=[[:space:]]*(1[2-9]|[2-9][0-9])([[:space:]]|$)' \
+        /etc/security/pwquality.conf \
+        /etc/security/pwquality.conf.d/*.conf \
+        /etc/pam.d/common-password 2>/dev/null
+}
+
+history_5() {
+    grep -Eq '^[[:space:]]*password[[:space:]]+.*pam_pwhistory\.so.*remember[[:space:]]*=[[:space:]]*([5-9]|[1-9][0-9]+)([[:space:]]|$)' \
+        /etc/pam.d/common-password 2>/dev/null
+}
+
+aging_90() {
+    grep -Eqs '^[[:space:]]*PASS_MAX_DAYS[[:space:]]+(90|[1-9]|[1-8][0-9])[[:space:]]*($|#)' \
+        /etc/login.defs 2>/dev/null
+}
+
+faillock_active() {
+    pam_has '^[[:space:]]*auth[[:space:]].*pam_faillock\.so'
+}
+
+faillock_5() {
+    grep -Eqs '^[[:space:]]*deny[[:space:]]*=[[:space:]]*5([[:space:]]|$)' \
+        /etc/security/faillock.conf 2>/dev/null ||
+    grep -Eqs 'pam_faillock\.so.*deny=5([[:space:]]|$)' \
+        /etc/pam.d/common-auth 2>/dev/null
+}
+
+fail2ban_active() {
+    systemctl is-active --quiet fail2ban &&
+    fail2ban-client status sshd >/dev/null 2>&1
+}
+
+sshd_value() {
+    [[ "$(sshd -T 2>/dev/null |
+        awk -v k="$1" '$1==k {print $2; exit}')" == "$2" ]]
+}
+
+mfa_enabled() {
+    sshd -T 2>/dev/null |
+        grep -Eq '^authenticationmethods publickey,keyboard-interactive(:pam)?([[:space:]]|$)' &&
+    sshd_value kbdinteractiveauthentication yes &&
+    sshd_value usepam yes &&
+    grep -Eqs '^[[:space:]]*auth[[:space:]]+required[[:space:]]+pam_google_authenticator\.so([[:space:]]|$)' \
+        /etc/pam.d/sshd
+}
 
 if [[ $EUID -ne 0 ]]; then
     echo 'ERROR: Run as root: sudo ./22-identity_audit.sh' >&2
