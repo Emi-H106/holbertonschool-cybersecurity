@@ -52,8 +52,8 @@ echo
 # Create SSH directory
 echo "Creating .ssh directory if needed..."
 
-mkdir -p "$SSH_DIR"
-chmod 700 "$SSH_DIR"
+mkdir -p $HOME/.ssh
+chmod 700 $HOME/.ssh
 
 echo "  $SSH_DIR: Ready"
 echo "  Permissions: 700"
