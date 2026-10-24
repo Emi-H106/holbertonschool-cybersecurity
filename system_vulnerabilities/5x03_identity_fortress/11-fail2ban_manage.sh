@@ -44,7 +44,7 @@ if [ "$1" != "status" ] &&
     usage
 fi
 
-if [ "$1" = "status" ]; then
+if [ $1 = "status" ]; then
 
     if [[ $# -ne 1 ]]; then
         usage
@@ -68,7 +68,7 @@ if [ "$1" = "status" ]; then
         exit 1
     fi
 
-elif [ "$1" = "banned" ]; then
+elif [ $1 = "banned" ]; then
 
     if [[ $# -ne 1 ]]; then
         usage
@@ -89,7 +89,7 @@ elif [ "$1" = "banned" ]; then
         done
     fi
 
-elif [ "$1" = "unban" ]; then
+elif [ $1 = "unban" ]; then
 
     if [[ $# -ne 2 ]]; then
         usage
