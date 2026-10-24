@@ -89,8 +89,16 @@ check 'Lockout after 5 attempts' faillock_5
 check 'fail2ban for SSH' fail2ban_active
 
 printf '\nSSH Security:\n'
-check 'Password authentication disabled' sshd_value passwordauthentication no
-check 'Public key authentication enabled' sshd_value pubkeyauthentication yes
+
+# Verify PasswordAuthentication no
+check 'Password authentication disabled' \
+    sshd_value passwordauthentication no
+
+# Verify PubkeyAuthentication yes
+check 'Public key authentication enabled' \
+    sshd_value pubkeyauthentication yes
+
+# Verify AuthenticationMethods publickey,keyboard-interactive
 check 'MFA required' mfa_enabled
 
 printf '\nUser Compliance:\n'
