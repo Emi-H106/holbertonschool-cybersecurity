@@ -60,8 +60,7 @@ echo "  Expected: Prompt for verification code"
 
 if [[ -f "$SSH_KEY" ]]; then
 
-    SSH_OUTPUT=$(timeout 10 ssh \
-        -i "$SSH_KEY" \
+    SSH_OUTPUT=$(timeout 10 ssh -i "$SSH_KEY" \
         -o BatchMode=yes \
         -o PasswordAuthentication=no \
         -o KbdInteractiveAuthentication=no \
