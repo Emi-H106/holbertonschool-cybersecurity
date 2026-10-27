@@ -1,0 +1,38 @@
+services:
+  dev:
+    image: secure-python-dev:v1
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    working_dir: /workspace
+
+    user: "1000:1000"
+
+    volumes:
+      - ./:/workspace:rw
+
+    read_only: true
+
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m,mode=1777
+
+    cap_drop:
+      - ALL
+
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=builtin
+
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.5
+    pids_limit: 50
+
+    network_mode: none
+
+    stdin_open: true
+    tty: true
+
+    command: ["python", "--version"]
