@@ -1,30 +1,43 @@
+# Stage 1: Builder
+FROM python:3.11-slim AS builder
 
-FROM python:3.11-slim
+# Install build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    make \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user with UID 1000
+WORKDIR /build
+
+COPY requirements.txt .
+
+# Install dependencies into a separate directory
+RUN pip install --no-cache-dir \
+    --prefix=/install \
+    -r requirements.txt
+
+# Stage 2: Runtime
+FROM python:3.11-slim AS runtime
+
+# Create non-root user
 RUN groupadd -g 1000 appuser && \
     useradd -m -u 1000 -g appuser appuser
 
-# Set working directory
 WORKDIR /app
 
-# Install application dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy only installed dependencies from builder
+COPY --from=builder /install /usr/local
 
-# Copy application files
+# Copy application
 COPY --chown=appuser:appuser app.py .
 
-# SECURITY: Never hardcode passwords or secrets in Dockerfiles.
-# Pass configuration at runtime using environment variables:
-# docker run -e DB_HOST=... -e DB_USER=... -e DB_PASSWORD=... IMAGE
-# For production, prefer mounted secret files or a secrets manager.
+# Never hardcode secrets in Dockerfiles.
+# Pass secrets at runtime using environment variables
+# or, preferably, a secrets management system.
 
-# Switch to non-root user
 USER appuser
 
-# Expose Flask port
 EXPOSE 5000
 
-# Start application
 CMD ["python", "app.py"]
