@@ -1,47 +1,44 @@
-# Stage 1: Builder
-FROM python:3.11-slim AS builder
+# Secure Python 3.11 Development Environment
 
-# Install build tools
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    make \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.11-slim
 
-WORKDIR /build
+# Image metadata
+LABEL org.opencontainers.image.title="Secure Python Dev Environment"
+LABEL org.opencontainers.image.description="Hardened Python 3.11 development environment"
+LABEL org.opencontainers.image.version="1.0"
+LABEL org.opencontainers.image.vendor="DevStream"
 
-COPY requirements.txt .
-
-# Install dependencies into a separate directory
-RUN pip install --no-cache-dir \
-    --prefix=/install \
-    -r requirements.txt
-
-# Stage 2: Runtime
-FROM python:3.11-slim AS runtime
+# Python configuration
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
 
 # Create non-root user
-RUN groupadd -g 1000 appuser && \
-    useradd -m -u 1000 -g appuser appuser
+RUN groupadd -g 1000 devuser && \
+    useradd -m -u 1000 -g devuser -s /bin/sh devuser
 
-WORKDIR /app
+# Create virtual environment and install development tools
+RUN python -m venv /opt/venv && \
+    pip install --no-cache-dir \
+        pylint \
+        black \
+        pytest \
+        mypy
 
-# Copy only installed dependencies from builder
-COPY --from=builder /install /usr/local
+# Create workspace
+RUN mkdir -p /workspace && \
+    chown -R devuser:devuser /workspace /opt/venv
 
-# Copy application
-COPY --chown=appuser:appuser app.py .
+WORKDIR /workspace
 
-# Never hardcode secrets in Dockerfiles.
-# Pass secrets at runtime using environment variables
-# or, preferably, a secrets management system.
+# Run as non-root user
+USER devuser
 
-USER appuser
+# Healthcheck: verify Python and pip are available
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import sys; import pip; sys.exit(0 if sys.version_info[:2] == (3, 11) else 1)" || exit 1
 
-EXPOSE 5000
-
-# Check Flask health endpoint every 30 seconds
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=5)" || exit 1
-
-CMD ["python", "app.py"]
+# Default command
+CMD ["python", "--version"]
