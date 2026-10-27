@@ -26,12 +26,9 @@ docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
 
 echo "Starting container with runtime environment variables..."
 
-docker run -d \
+docker run -d -e DB_HOST -e DB_USER -e DB_PASSWORD \
     --name "$CONTAINER" \
     --network none \
-    -e DB_HOST \
-    -e DB_USER \
-    -e DB_PASSWORD \
     "$IMAGE" >/dev/null
 
 # Remove password from the shell variable
