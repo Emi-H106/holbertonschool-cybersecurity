@@ -1,32 +1,25 @@
-FROM ubuntu:latest
 
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    curl \
-    wget \
-    vim \
-    net-tools \
-    iputils-ping \
-    gcc \
-    make \
-    sudo
+FROM python:3.11-slim
 
-RUN echo 'root:devstream123' | chpasswd
+# Create non-root user with UID 1000
+RUN groupadd -g 1000 appuser && \
+    useradd -m -u 1000 -g appuser appuser
 
-ENV DB_HOST=prod-db.devstream.internal
-ENV DB_USER=admin
-ENV DB_PASSWORD=Sup3rS3cr3t!Pr0d
-
+# Set working directory
 WORKDIR /app
-COPY . /app
 
-RUN python3 -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+# Install application dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-ENV PATH="/opt/venv/bin:$PATH"
+# Copy application files
+COPY --chown=appuser:appuser app.py .
 
+# Switch to non-root user
+USER appuser
+
+# Expose Flask port
 EXPOSE 5000
 
-CMD ["python3", "app.py"]
+# Start application
+CMD ["python", "app.py"]
