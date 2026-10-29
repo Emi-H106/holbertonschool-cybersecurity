@@ -36,6 +36,9 @@ RUN groupadd -g 10001 appgroup && \
 COPY --chmod=755 scripts/ /opt/security/scripts/
 COPY config/ /opt/security/config/
 
+# Apply system hardening during build
+RUN /opt/security/scripts/init-hardening.sh
+
 # Configure Nginx for non-root execution
 RUN sed -i '/^user /d' /etc/nginx/nginx.conf && \
     sed -i 's/listen 80 default_server;/listen 8080 default_server;/' \
