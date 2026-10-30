@@ -273,7 +273,8 @@ def audit_container():
         category,
         "Non-root application workers",
         non_root,
-        f"Nginx worker PIDs: {worker_pids}; UIDs: {worker_uids}",
+        f"{len(worker_pids)} workers running as UID {worker_uids[0]}"
+        if non_root else "No valid non-root Nginx workers detected",
     )
 
     worker_caps = [
@@ -293,7 +294,8 @@ def audit_container():
         category,
         "No effective capabilities on application workers",
         no_caps,
-        f"Nginx worker CapEff: {worker_caps}",
+        f"All {len(worker_pids)} workers have CapEff=0"
+        if no_caps else "One or more workers have effective capabilities",
     )
 
     # Check security restrictions on the audit process.

@@ -1,6 +1,6 @@
 # NovaTech - Security Audit Report
 
-**Date:** 2026-10-30 14:56 UTC
+**Date:** 2026-10-30 15:02 UTC
 **Pass threshold:** 80%
 
 ## Category Results
@@ -71,8 +71,8 @@
 
 | Check | Status | Details |
 |---|---|---|
-| Non-root application workers | PASS | Nginx worker PIDs: [16, 17, 18, 19, 20, 22, 24, 25, 26, 27, 28, 30]; UIDs: ['10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001'] |
-| No effective capabilities on application workers | PASS | Nginx worker CapEff: ['0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000'] |
+| Non-root application workers | PASS | 12 workers running as UID 10001 |
+| No effective capabilities on application workers | PASS | All 12 workers have CapEff=0 |
 | No new privileges | PASS | NoNewPrivs: 1 |
 | Seccomp filtering | PASS | Seccomp mode: 2 |
 
