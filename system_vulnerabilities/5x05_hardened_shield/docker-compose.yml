@@ -1,0 +1,59 @@
+services:
+  novatech:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: novatech-hardened:1.0
+    container_name: novatech-secure
+
+    ports:
+      - "80:8080"
+      - "22:2222"
+
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - CHOWN
+      - DAC_OVERRIDE
+
+    security_opt:
+      - no-new-privileges:true
+
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 100
+
+    read_only: true
+
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m
+      - /run:rw,nosuid,nodev,size=16m
+      - /var/run:rw,nosuid,nodev,size=16m
+
+    volumes:
+      - nginx_cache:/var/cache/nginx
+      - nginx_log:/var/log/nginx
+      - nginx_data:/var/lib/nginx
+      - ssh_keys:/etc/ssh
+
+    sysctls:
+      net.ipv4.ip_forward: "0"
+      net.ipv4.conf.all.accept_redirects: "0"
+      net.ipv4.conf.default.accept_redirects: "0"
+    
+    entrypoint: ["/bin/bash", "-c"]
+
+    command:
+      - |
+        /opt/security/scripts/init-services.sh || exit 1
+        exec sleep infinity
+
+    restart: unless-stopped
+
+volumes:
+  nginx_cache:
+  nginx_log:
+  nginx_data:
+  ssh_keys:

@@ -25,13 +25,17 @@ require_root() {
 start_web() {
     log "Checking Nginx..."
 
+    # Create runtime directory for Nginx
+    mkdir -p /tmp/nginx
+    chmod 755 /tmp/nginx
+
     nginx -t
 
-    if pgrep -x nginx >/dev/null; then
-        log "Nginx already running."
+    if pgrep -x nginx >/dev/null 2>&1; then
+        log "Nginx is already running."
     else
-        log "Starting Nginx..."
         nginx
+        log "Nginx started."
     fi
 }
 
