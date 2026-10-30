@@ -66,4 +66,4 @@ HEALTHCHECK --interval=30s --timeout=5s \
 # Run as non-root
 USER appuser
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/opt/security/scripts/init-services.sh"]
