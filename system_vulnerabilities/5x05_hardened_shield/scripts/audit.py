@@ -84,28 +84,27 @@ def audit_filesystem():
 
     audit_file = Path("/opt/security/audit/suid_sgid.txt")
 
+    try:
+        file_stat = audit_file.stat()
+        exists = audit_file.is_file()
+        mode = file_stat.st_mode & 0o777
+    except (PermissionError, OSError):
+        exists = False
+        mode = None
+
     add(
         category,
         "SUID/SGID audit exists",
-        audit_file.is_file(),
-        str(audit_file),
+        exists,
+        str(audit_file) if exists else "Missing or inaccessible",
     )
 
-    if audit_file.is_file():
-        mode = audit_file.stat().st_mode & 0o777
-        add(
-            category,
-            "SUID/SGID report permissions",
-            mode == 0o640,
-            f"Mode: {mode:03o}",
-        )
-    else:
-        add(
-            category,
-            "SUID/SGID report permissions",
-            False,
-            "Audit file missing",
-        )
+    add(
+        category,
+        "SUID/SGID report permissions",
+        mode == 0o640,
+        f"Mode: {mode:03o}" if mode is not None else "Permission denied or file missing",
+    )
 
     banner = read_file("/etc/issue.net")
     add(
@@ -229,43 +228,78 @@ def audit_services():
     )
 
 
+
 def audit_container():
     category = "Container Security"
 
-    uid = os.geteuid()
+    # Check the actual Nginx worker processes, not the audit process.
+    worker_pids = []
+
+    for proc in Path("/proc").iterdir():
+        if not proc.name.isdigit():
+            continue
+
+        try:
+            cmdline = (proc / "cmdline").read_bytes().replace(b"\x00", b" ")
+            if b"nginx: worker process" in cmdline:
+                worker_pids.append(int(proc.name))
+        except (OSError, PermissionError):
+            continue
+
+    worker_statuses = [
+        read_file(f"/proc/{pid}/status")
+        for pid in worker_pids
+    ]
+
+    def status_value(status, field):
+        match = re.search(
+            rf"^{field}:\s*(\S+)",
+            status,
+            re.MULTILINE,
+        )
+        return match.group(1) if match else None
+
+    worker_uids = [
+        status_value(status, "Uid")
+        for status in worker_statuses
+    ]
+
+    non_root = (
+        bool(worker_statuses)
+        and all(uid is not None and int(uid) != 0 for uid in worker_uids)
+    )
 
     add(
         category,
-        "Non-root execution",
-        uid != 0,
-        f"Audit process UID: {uid}",
+        "Non-root application workers",
+        non_root,
+        f"Nginx worker PIDs: {worker_pids}; UIDs: {worker_uids}",
     )
 
+    worker_caps = [
+        status_value(status, "CapEff")
+        for status in worker_statuses
+    ]
+
+    no_caps = (
+        bool(worker_statuses)
+        and all(
+            cap is not None and int(cap, 16) == 0
+            for cap in worker_caps
+        )
+    )
+
+    add(
+        category,
+        "No effective capabilities on application workers",
+        no_caps,
+        f"Nginx worker CapEff: {worker_caps}",
+    )
+
+    # Check security restrictions on the audit process.
     status = read_file("/proc/self/status")
 
-    match = re.search(
-        r"^CapEff:\s*([0-9a-fA-F]+)",
-        status,
-        re.MULTILINE,
-    )
-
-    caps = int(match.group(1), 16) if match else None
-
-    add(
-        category,
-        "No effective Linux capabilities",
-        caps == 0,
-        f"CapEff: {match.group(1) if match else 'unavailable'}",
-    )
-
-    match = re.search(
-        r"^NoNewPrivs:\s*(\d+)",
-        status,
-        re.MULTILINE,
-    )
-
-    nnp = match.group(1) if match else None
-
+    nnp = status_value(status, "NoNewPrivs")
     add(
         category,
         "No new privileges",
@@ -273,21 +307,13 @@ def audit_container():
         f"NoNewPrivs: {nnp or 'unavailable'}",
     )
 
-    match = re.search(
-        r"^Seccomp:\s*(\d+)",
-        status,
-        re.MULTILINE,
-    )
-
-    seccomp = match.group(1) if match else None
-
+    seccomp = status_value(status, "Seccomp")
     add(
         category,
         "Seccomp filtering",
         seccomp == "2",
         f"Seccomp mode: {seccomp or 'unavailable'}",
     )
-
 
 def generate_report():
     lines = [

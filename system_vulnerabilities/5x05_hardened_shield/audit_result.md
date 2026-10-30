@@ -1,6 +1,6 @@
 # NovaTech - Security Audit Report
 
-**Date:** 2026-10-30 14:23 UTC
+**Date:** 2026-10-30 14:56 UTC
 **Pass threshold:** 80%
 
 ## Category Results
@@ -11,11 +11,11 @@
 | Filesystem Security | 4 | 4 | 100.0% |
 | Identity Security | 10 | 10 | 100.0% |
 | Service Security | 9 | 9 | 100.0% |
-| Container Security | 2 | 4 | 50.0% |
+| Container Security | 4 | 4 | 100.0% |
 
 ## Overall Result
 
-**Overall Score:** 90.3%
+**Overall Score:** 96.8%
 **Status:** PASS
 
 ## Detailed Findings
@@ -71,8 +71,8 @@
 
 | Check | Status | Details |
 |---|---|---|
-| Non-root execution | FAIL | Audit process UID: 0 |
-| No effective Linux capabilities | FAIL | CapEff: 00000000000000c3 |
+| Non-root application workers | PASS | Nginx worker PIDs: [16, 17, 18, 19, 20, 22, 24, 25, 26, 27, 28, 30]; UIDs: ['10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001', '10001'] |
+| No effective capabilities on application workers | PASS | Nginx worker CapEff: ['0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000', '0000000000000000'] |
 | No new privileges | PASS | NoNewPrivs: 1 |
 | Seccomp filtering | PASS | Seccomp mode: 2 |
 
