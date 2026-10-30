@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPORT = Path("audit_result.md")
-RESULTS = {}
+AUDIT_RESULTS = {}
 PASS_THRESHOLD = 80
 
 
@@ -38,7 +38,7 @@ def read_file(path):
 
 
 def add(category, name, passed, details):
-    RESULTS.setdefault(category, []).append(
+    AUDIT_RESULTS.setdefault(category, []).append(
         (name, bool(passed), details)
     )
 
@@ -305,7 +305,7 @@ def generate_report():
     total_passed = 0
     total_checks = 0
 
-    for category, checks in RESULTS.items():
+    for category, checks in AUDIT_RESULTS.items():
         passed = sum(1 for _, ok, _ in checks if ok)
         count = len(checks)
         score = (passed / count * 100) if count else 0
@@ -335,7 +335,7 @@ def generate_report():
         "",
     ])
 
-    for category, checks in RESULTS.items():
+    for category, checks in AUDIT_RESULTS.items():
         lines.append(f"### {category}")
         lines.append("")
         lines.append("| Check | Status | Details |")
@@ -357,7 +357,7 @@ def generate_report():
 
     print("\n=== NovaTech Security Audit ===")
 
-    for category, checks in RESULTS.items():
+    for category, checks in AUDIT_RESULTS.items():
         passed = sum(1 for _, ok, _ in checks if ok)
         print(f"{category}: {passed}/{len(checks)}")
 
