@@ -42,6 +42,7 @@ RUN /opt/security/scripts/init-identity.sh
 
 # Configure Nginx for non-root execution
 RUN sed -i '/^user /d' /etc/nginx/nginx.conf && \
+    sed -i '1i user appuser appgroup;' /etc/nginx/nginx.conf && \
     sed -i 's/listen 80 default_server;/listen 8080 default_server;/' \
       /etc/nginx/sites-available/default && \
     sed -i 's/listen \[::\]:80 default_server;/listen [::]:8080 default_server;/' \
@@ -62,8 +63,5 @@ EXPOSE 8080 2222
 HEALTHCHECK --interval=30s --timeout=5s \
   --start-period=20s --retries=3 \
   CMD curl -fsS http://127.0.0.1:8080/ > /dev/null || exit 1
-
-# Run as non-root
-USER appuser
 
 CMD ["/opt/security/scripts/init-services.sh"]
