@@ -69,7 +69,7 @@ These priorities reflect plausible business consequences, not verified vulnerabi
 
 ## 6. Limitations and Uncertainty
 
-This assessment relies exclusively on the Task 2 engagement brief. The detailed mobile architecture diagram, business-context document, retail threat-intelligence briefing, and RoE clauses were not provided. Consequently, actual vulnerabilities, data-transfer destinations, partner identities, existing controls, processing agreements, and incident-response maturity remain unverified. No penetration testing or technical validation was performed.
+This assessment relies exclusively on the engagement brief. The detailed mobile architecture diagram, business-context document, retail threat-intelligence briefing, and RoE clauses were not provided. Consequently, actual vulnerabilities, data-transfer destinations, partner identities, existing controls, processing agreements, and incident-response maturity remain unverified. No penetration testing or technical validation was performed.
 
 **Third-party-managed POS hardware:** Sundara does not build or operate the POS hardware described in the brief. Its internal security and operational controls are outside Sundara's first-party threat-model perimeter and are not modeled as Sundara-owned assets. Sundara may nevertheless retain responsibilities concerning its own integrations, personal-data handling, vendor governance, and contractual protections. The exact allocation of responsibility requires confirmation.
 
@@ -79,14 +79,14 @@ This assessment relies exclusively on the Task 2 engagement brief. The detailed 
 
 ## 7. Appendix: Sourced Findings
 
-**Source A — Task 2 client profile:** Singapore headquarters; 180 retail locations across Singapore, Malaysia, Indonesia, Thailand, and Hong Kong; third-party-managed POS hardware. Used to establish business context and the third-party boundary.
+**Source A —  client profile:** Singapore headquarters; 180 retail locations across Singapore, Malaysia, Indonesia, Thailand, and Hong Kong; third-party-managed POS hardware. Used to establish business context and the third-party boundary.
 
-**Source B — Task 2 engagement description:** Planned expansion into Germany, France, and the Netherlands; competitor loyalty-data breach; board-level six-month delay-versus-proceed decision; IPO ambitions. Used to establish the business objective and risk prioritization.
+**Source B —  engagement description:** Planned expansion into Germany, France, and the Netherlands; competitor loyalty-data breach; board-level six-month delay-versus-proceed decision; IPO ambitions. Used to establish the business objective and risk prioritization.
 
-**Source C — Task 2 mobile architecture description:** 12 million active loyalty accounts, integrated payment, geolocation, AI recommendations, and cross-border reservations. Used to identify candidate data-processing functions and hypothetical threat scenarios.
+**Source C —  mobile architecture description:** 12 million active loyalty accounts, integrated payment, geolocation, AI recommendations, and cross-border reservations. Used to identify candidate data-processing functions and hypothetical threat scenarios.
 
-**Source D — Task 2 jurisdiction and workspace descriptions:** Singapore PDPA, EU GDPR, cross-border data flows, and cross-jurisdictional RoE considerations. Used to identify the need for legal, privacy, and transfer-governance validation.
+**Source D —  jurisdiction and workspace descriptions:** Singapore PDPA, EU GDPR, cross-border data flows, and cross-jurisdictional RoE considerations. Used to identify the need for legal, privacy, and transfer-governance validation.
 
-**Source E — Task 2 threat-intelligence description:** Retail-sector skimming and loyalty-data activity in Asia and Europe. Used as general threat context only; no specific campaign or confirmed Sundara compromise is asserted.
+**Source E —  threat-intelligence description:** Retail-sector skimming and loyalty-data activity in Asia and Europe. Used as general threat context only; no specific campaign or confirmed Sundara compromise is asserted.
 
 **Hidden findings / flags:** None verified or submitted. No undocumented international relationship or transfer destination has been invented.
