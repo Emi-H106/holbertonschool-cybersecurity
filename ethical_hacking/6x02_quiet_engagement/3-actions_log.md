@@ -13,7 +13,9 @@
 ## Action Log
 
 | Timestamp (UTC) | Phase | Action | Target | Result |
-| --- | --- | --- | --- | --- |
+
+| 2026-11-12T13:31:25Z | 4 | Reviewed the Rules of Engagement and identified the five authorised assessment surfaces | Lumen engagement scope | Confirmed the documented scope includes the customer-facing web portal, internal admin panel, public REST API, demo edge gateway, and demo MQTT broker. No active enumeration or vulnerability validation performed. |
+
 
 ## Logging Conventions
 
