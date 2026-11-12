@@ -13,17 +13,20 @@
 ## Action Log
 
 | Timestamp (UTC) | Phase | Action | Target | Result |
-
-| 2026-11-12T13:31:25Z | 4 | Reviewed the Rules of Engagement and identified the five authorised assessment surfaces | Lumen engagement scope | Confirmed the documented scope includes the customer-facing web portal, internal admin panel, public REST API, demo edge gateway, and demo MQTT broker. No active enumeration or vulnerability validation performed. |
-| 2026-11-12T09:00:00Z | 5 | Review file upload validation requirements | Lumen internal admin panel | Validation mechanism not independently verified; payload design pending. |
-| 2026-11-12T09:15:00Z | 5 | Assess possible polyglot payload composition | Lumen internal admin panel | Candidate technique identified from engagement requirements; no payload execution confirmed. |
-| 2026-11-12T09:30:00Z | 5 | Review upload bypass conditions | Lumen admin upload functionality | File extension, MIME type, content validation and server execution behaviour require testing. |
-| 2026-11-12T09:45:00Z | 5 | Assess initial foothold requirements | Lumen application server | No server-side code execution verified; foothold flag not obtained. |
-| 2026-11-12T10:00:00Z | 5 | Review potential credential and token exposure paths | Lumen public REST API | No exposed credentials or usable tokens confirmed. |
-| 2026-11-12T10:15:00Z | 5 | Assess potential pivot paths | Lumen internal administration functions | No authenticated pivot or lateral movement verified. |
-| 2026-11-12T10:30:00Z | 5 | Evaluate possible business impact | Lumen IoT management plane | Potential access-control and data-integrity consequences identified; no impact demonstrated. |
-| 2026-11-12T10:45:00Z | 5 | Review scope and exploitation restrictions | Lumen-controlled infrastructure | Initial foothold must not use Metasploit; customer-deployed industrial assets remain excluded. |
-
+| --- | --- | --- | --- | --- |
+| 2026-11-12T13:31:25Z | 4 | Reviewed the Rules of Engagement and identified the five authorised assessment surfaces | Lumen engagement scope | Documented the customer-facing web portal, internal admin panel, public REST API, demo edge gateway, and demo MQTT broker as authorised asset classes. Exact host inventory and technical authorisation remain subject to verification. |
+| 2026-11-12T13:35:00Z | 5 | Defined the hypothetical exploitation chain and reviewed the no-Metasploit initial foothold constraint | Lumen-controlled admin panel and application server | Scenario design only. Initial access must use a manually constructed or documented polyglot technique without Metasploit. Customer-deployed industrial assets remain excluded. |
+| 2026-11-12T13:38:00Z | 5 | Documented candidate polyglot payload composition | Lumen admin upload functionality | Hypothetical PNG/PHP polyglot combines image-compatible content with a PHP identity-check component. No executable payload has been submitted or validated. |
+| 2026-11-12T13:41:00Z | 5 | Analysed the proposed upload validation bypass logic | Lumen admin upload functionality | Hypothesis: inconsistent file-type validation and server-side execution handling could permit uploaded content to be interpreted as PHP. Actual validation controls and execution behaviour are unknown. |
+| 2026-11-12T13:44:00Z | 5 | Defined initial foothold verification criteria | Lumen application server | A successful foothold would require an observed server-side command result, execution identity, request evidence, and confirmed access level. No foothold has been established. |
+| 2026-11-12T13:47:00Z | 5 | Documented hypothetical foothold outcome for scenario analysis | admin.lumen.example (illustrative hostname only) | Fictional example: HTTP 200 upload response followed by server-side identity output uid=33(www-data). This is not an observed result or a validated foothold. |
+| 2026-11-12T13:50:00Z | 5 | Defined the credential and token exposure hypothesis | Lumen-controlled public REST API and application server | Scenario assumes that an application response or authorised configuration source might reveal an internal service credential. No credential or token has been discovered. |
+| 2026-11-12T13:53:00Z | 5 | Modelled a potential pivot from application access to internal administration | Lumen internal admin functions | Hypothetical chain: application-level access followed by discovery of an internal credential and access to an authorised administrative endpoint. No authenticated pivot has been performed. |
+| 2026-11-12T13:56:00Z | 5 | Defined pivot validation requirements | Lumen-controlled internal administration | A confirmed pivot would require an authenticated response from a separately authorised internal function, with sensitive tokens redacted from the evidence. No such response is available. |
+| 2026-11-12T13:59:00Z | 5 | Modelled potential impact on the IoT management plane | Lumen-controlled IoT administration functions | Hypothetical impact includes unauthorised visibility into device-management metadata or monitoring configuration. No production device, customer gateway, or industrial network has been accessed. |
+| 2026-11-12T14:02:00Z | 5 | Defined a non-destructive impact demonstration | Authorised Lumen test data and management functions | Proposed evidence is limited to metadata, record counts, or synthetic demonstration records sufficient to show access-control consequences. No sensitive customer records have been retrieved. |
+| 2026-11-12T14:05:00Z | 5 | Reviewed scope boundaries and evidence handling | Lumen engagement scope | Excluded customer-deployed gateways, IoT sensors, industrial networks, destructive actions, and unnecessary data extraction. All technical outcomes remain unverified. |
+| 2026-11-12T14:08:00Z | 5 | Reviewed exploitation evidence and reporting status | Lumen engagement | Payload concept, bypass hypothesis, foothold criteria, pivot hypothesis, and impact criteria documented. No actual exploitation, foothold flag, pivot flag, or impact flag obtained. |
 
 ## Logging Conventions
 
