@@ -1,9 +1,9 @@
 # Vanguard Security: Threat Modeling Engagement Report
 ## Client: Helix Aerospace Systems
 
-**Prepared by:** Vanguard Security — Cybersecurity Consulting  
-**Date:** 12 November 2026  
-**Distribution:** Helix Chief Information Security Officer; Authorized BSI and DGA Reviewers  
+**Prepared by:** Junior Consultant, Vanguard Security
+**Date:** 12 November 2026
+**Distribution:** Helix CISO (with downstream BSI / DGA review)
 **Classification:** Confidential — Client Use  
 **Assessment Status:** Preliminary — Contractual Resilience Validation Pending
 
