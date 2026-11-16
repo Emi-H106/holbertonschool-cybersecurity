@@ -4,7 +4,7 @@
 
 ### Retired finding F-07 — Authorized Bulk Patient Export Workflow
 
-F-07 is classified as a conditional retirement candidate following review of MediPath's documented emergency and regulatory-response export process. The ability of an authorized Support Manager to generate a multi-laboratory patient export is an intended business capability rather than, by itself, evidence of an authorization failure. The client describes a DPO-approved ticket, WebAuthn step-up authentication, dual approval by the Support Operations Manager and DPO delegate, encryption using a case-specific key, seven-day expiry, and immutable audit logging. Sarah's observation was obtained using a temporarily pre-approved test role, so it does not demonstrate that an unauthorized production user could bypass these controls. Retirement is appropriate only after confirming that all production export paths enforce the required approvals, authentication, encryption, expiry, and logging without bypass. Until that verification is completed, F-07 remains a conditional retirement candidate rather than a conclusively closed security issue. The original evidence and decision rationale must be preserved in the report addendum.
+**Decision: RETIRED from the active vulnerability register.** Sarah's test demonstrated that a temporarily pre-approved Support Manager role could execute a multi-laboratory patient export, but did not establish unauthorized access or a bypass of the documented approval workflow. MediPath identifies this capability as an intended emergency and regulatory-response function governed by a DPO-approved ticket, WebAuthn step-up authentication, dual approval by the Support Operations Manager and DPO delegate, case-specific encryption, seven-day expiry, and immutable audit logging. On the evidence available, the observed export is therefore classified as authorized functionality rather than a demonstrated authorization vulnerability. F-07 is removed from the active findings and retained in the report addendum for traceability. This retirement concerns the reported test scenario only: the supplied evidence does not establish that every production export path has been independently verified, so enforcement of the documented safeguards remains a separate control-assurance activity rather than a confirmed completed penetration-test validation.
 
 ## Merged Findings
 
@@ -28,7 +28,6 @@ The following list carries forward all demonstrated security weaknesses that hav
 | F-04 — Disabled TLS peer verification in legacy connector worker | Medium (provisional) | Yes |
 | F-05 — Unsigned partner sample-status webhook | High | Yes |
 | F-06 — Excessive retention of diagnostic export packages | High | Yes |
-| F-07 — Bulk patient export workflow (conditional retirement) | Medium (provisional) | Yes, pending verification |
 | F-08 — Password-recovery account enumeration | Medium | Yes |
 | F-10 — Caller-controlled laboratory identity in analytics service | High | Yes |
 
@@ -48,6 +47,8 @@ F-08 is retained because differentiated password-recovery responses disclose acc
 
 F-10 is retained because direct application-network requests can supply an untrusted `X-Lab-ID` header and obtain another laboratory's analytics data, contrary to the intended tenant-isolation model.
 
-F-07 remains in the prioritization register until production evidence supports formal retirement. Once all mandatory safeguards are verified and no unauthorized export path exists, it may be removed from the active findings list and documented exclusively in the retired-findings addendum.
+F-07 is retired from the active vulnerability register because the inherited test evidence demonstrates use of an intended, pre-approved export capability rather than an unauthorized export or an approval bypass. Its original evidence, documented safeguards, and retirement rationale remain in the addendum. Verification of consistent enforcement across all production paths remains an outstanding control-assurance recommendation and is not represented as completed testing.
+
+The consolidated retained list excludes F-07. The remaining findings continue into Task 6 for prioritization and remediation planning.
 
 The proposed F-03/09 grouping is carried forward as one remediation workstream while preserving separate technical evidence and validation criteria. The final report must distinguish confirmed technical defects from provisional consolidation decisions and must not treat compensating controls as effective without evidence of their enforcement.
