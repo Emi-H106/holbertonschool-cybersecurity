@@ -2,96 +2,124 @@
 
 ## Prioritization Approach
 
-This matrix translates MediPath Diagnostics' retained penetration-test findings and identified attack chains into an actionable remediation plan for the CISO and audit committee.
+This matrix establishes a risk-based remediation plan for MediPath Diagnostics, incorporating retained findings, environmental severity, attack-chain exposure, business impact, and existing compensating controls.
 
-Priorities reflect environmental severity, demonstrated exploitability, patient-data sensitivity, business impact, attack-chain dependencies, and the effectiveness of documented compensating controls.
+Priority definitions:
 
-- **P1 — Immediate:** High-impact weaknesses requiring urgent containment and remediation, particularly cross-tenant exposure, diagnostic workflow integrity, and excessive privileges.
-- **P2 — Quarterly:** Significant weaknesses requiring planned remediation and validation of existing compensating controls.
-- **P3 — Backlog:** Lower-priority improvements that can be scheduled within routine security maintenance.
+- P1 — Immediate: Urgent remediation of high-impact authorization, patient-data confidentiality, workflow-integrity, and privilege-management weaknesses.
+- P2 — Quarterly: Planned remediation of significant weaknesses where compensating controls or additional validation requirements affect urgency.
+- P3 — Backlog: Lower-priority improvements managed through routine security maintenance.
 
-Indicative costs represent relative implementation effort rather than approved financial budgets. Attack-chain costs describe coordinated validation and remediation work and should not be added directly to the costs of their constituent findings.
+Indicative costs represent relative implementation effort, not approved financial expenditure.
+
+Each item is assigned to an operational owner identified in MediPath's organization chart. The Technical Director provides engineering oversight, while the CISO coordinates risk treatment and reports progress to the audit committee.
 
 ## Remediation Prioritization Matrix
 
 | Item | Priority | Owner | Timeline | Cost | Dependencies |
 | --- | --- | --- | --- | --- | --- |
-| F-01 — Cross-tenant diagnostic result access | P1 | Technical Director | Immediate | Medium | No prerequisite; enforce server-side tenant ownership checks and coordinate validation with F-10. |
-| F-02 — Stored XSS in support case notes | P1 | Technical Director | Immediate | Medium | No prerequisite; implement contextual output encoding and sanitization, then validate support-session boundaries for Chains 2 and 3. |
-| F-03/09 — Connector authorization and privilege lifecycle | P1 | Technical Director | Immediate | High | Coordinate connector-specific token scopes, credential revocation, and immediate session/cache invalidation; preserve separate F-03 and F-09 verification tests. |
-| F-04 — Disabled TLS peer verification in legacy connector worker | P2 | Technical Director | Quarterly | Medium | First validate managed mTLS gateway enforcement, destination restrictions, bypass resistance, monitoring, and fail-closed behavior; then restore defense-in-depth certificate validation. |
-| F-05 — Unsigned partner sample-status webhook | P1 | Technical Director | Immediate | Medium | Coordinate with partner integration owners; implement message authentication, replay protection, and partner identity binding before production enforcement. |
-| F-06 — Excessive retention of diagnostic export packages | P2 | DPO | Quarterly | Medium | Confirm approved retention requirements and lawful exceptions; Technical Director implements automatic expiry, deletion, and access-control verification. |
-| F-08 — Password-recovery account enumeration | P3 | Technical Director | Backlog | Low | No prerequisite; standardize recovery responses and strengthen account-based throttling, with coordination on laboratory-user MFA coverage. |
-| F-10 — Caller-controlled laboratory identity in analytics service | P1 | Technical Director | Immediate | Medium | No prerequisite; replace trust in caller-supplied `X-Lab-ID` with verified tenant identity and enforce authorization within the service. Coordinate with F-01. |
-| Chain 1 — Connector-to-diagnostic cross-tenant exposure (F-03 → F-10 → F-01) | P1 | CISO | Immediate | High | Coordinate remediation of F-03/09, F-10, and F-01; validate connector-to-analytics reachability and identifier-discovery assumptions before performing an end-to-end regression test. |
-| Chain 2 — Support XSS to residual administrative privileges (F-02 → F-09) | P1 | CISO | Immediate | Medium | Requires F-02 remediation and F-09 session/cache invalidation; verify privileged-session separation, administrative origin boundaries, and sensitive-action authorization. |
-| Chain 3 — Account enumeration to support-session compromise (F-08 → F-02) | P2 | CISO | Quarterly | Medium | Requires F-02 remediation and F-08 recovery-flow hardening; validate case-submission prerequisites, laboratory-user authentication coverage, and support-role access boundaries. |
+| F-01 — Cross-tenant diagnostic result access | P1 | Head of Platform Engineering | Immediate | Medium | Implement tenant ownership checks in the Results API and data-access layer; coordinate with the Data Platform Lead on F-10 and perform negative authorization tests. |
+| F-02 — Stored XSS in support case notes | P1 | Support Operations Manager | Immediate | Medium | Coordinate technical fixes with the Technical Director; implement contextual output encoding, sanitize stored content, and validate CSP enforcement and support-session security. |
+| F-03/09 — Connector authorization and privilege lifecycle | P1 | Identity and Access Management Lead | Immediate | High | Coordinate with the Integration Engineering Lead to restrict connector token scopes and lifetimes; implement immediate session revocation and authorization-cache invalidation; separately verify F-03 and F-09. |
+| F-04 — Disabled TLS peer verification in legacy connector worker | P2 | Site Reliability Engineering Lead | Quarterly | Medium | Coordinate with the Integration Engineering Lead; verify managed mTLS gateway certificate enforcement, destination restrictions, bypass resistance, monitoring, and fail-closed behavior before restoring worker-side certificate validation. |
+| F-05 — Unsigned partner sample-status webhook | P1 | Integration Engineering Lead | Immediate | Medium | Coordinate with the Product Owner, Diagnostic Workflow to validate permitted sample-state transitions; implement authenticated webhook signatures, replay protection, and partner identity binding. |
+| F-06 — Excessive retention of diagnostic export packages | P2 | Head of Platform Engineering | Quarterly | Medium | Obtain retention-policy approval from the Data Protection Officer; implement automatic expiration, deletion, and verification of export-package access restrictions. |
+| F-08 — Password-recovery account enumeration | P3 | Identity and Access Management Lead | Backlog | Low | Standardize account-recovery responses, implement account-based throttling, and review MFA coverage; coordinate with F-02 remediation for Chain 3. |
+| F-10 — Caller-controlled laboratory identity in analytics service | P1 | Data Platform Lead | Immediate | Medium | Coordinate with the Head of Platform Engineering; enforce authenticated service-to-service communication and verified tenant claims instead of trusting caller-supplied X-Lab-ID headers. |
+| Chain 1 — Connector-to-diagnostic cross-tenant exposure (F-03 → F-10 → F-01) | P1 | Head of Platform Engineering | Immediate | High | Coordinate implementation with the Identity and Access Management Lead, Integration Engineering Lead, and Data Platform Lead; complete F-03/09, F-10, and F-01 remediation and validate the conditional attack pivots. |
+| Chain 2 — Support XSS to residual administrative privileges (F-02 → F-09) | P1 | Identity and Access Management Lead | Immediate | Medium | Coordinate with the Support Operations Manager; complete F-02 and F-09 remediation, enforce immediate privilege revocation, and verify administrative session and authorization boundaries. |
+| Chain 3 — Account enumeration to support-session compromise (F-08 → F-02) | P2 | Support Operations Manager | Quarterly | Medium | Coordinate with the Identity and Access Management Lead; complete F-02 and F-08 remediation and validate case-submission permissions, authentication controls, and support-session boundaries. |
 
-## Remediation Sequence and Dependencies
+## Remediation Ownership and Accountability
 
-### Phase 1 — Immediate Risk Reduction
+### Technical Remediation Ownership
 
-The Technical Director should prioritize server-side authorization enforcement for F-01 and F-10, restrict excessive connector privileges under F-03, and eliminate delayed privilege revocation under F-09.
+The Head of Platform Engineering owns corrective actions affecting core APIs, diagnostic result access, tenant isolation, and export-service implementation.
 
-F-05 requires urgent integrity protection because the inherited evidence demonstrates unauthorized changes to synthetic sample-status records from an approved partner test source. Source-IP allowlisting must not be treated as equivalent to authenticated message integrity.
+The Identity and Access Management Lead owns authentication and authorization controls, including service tokens, session management, privilege revocation, and password-recovery behavior.
 
-F-02 should also receive immediate attention because stored active content was demonstrated in an authenticated support browser and contributes to two potential attack chains.
+The Integration Engineering Lead owns hospital connector security, partner webhook authentication, and integration-specific credential controls.
 
-The CISO should coordinate these workstreams and ensure that immediate containment measures, regression testing, and security monitoring are implemented without waiting for completion of all longer-term architectural improvements.
+The Site Reliability Engineering Lead owns infrastructure security controls, including network restrictions, managed gateways, monitoring, and transport-security enforcement.
 
-### Phase 2 — Attack-Chain Validation
+The Support Operations Manager owns the operational security of the support portal and support workforce. Application-level fixes are coordinated with the Technical Director, who is accountable for engineering delivery.
 
-Chain 1 requires coordinated remediation of F-03/09, F-10, and F-01 before the complete cross-tenant exposure scenario can be considered mitigated.
+The Data Platform Lead owns analytics-service security, including laboratory-level access restrictions and verified tenant identity within analytics queries.
 
-Chain 2 requires both stored-XSS remediation and effective administrative privilege revocation. Session separation and application-origin restrictions must be verified independently.
+The Product Owner, Diagnostic Workflow validates the business rules and permitted transitions governing sample-status updates.
 
-Chain 3 depends on the combination of account reconnaissance, a feasible case-submission route, and stored XSS. Its validation must distinguish actual authentication or submission access from hypothetical credential compromise.
+### Governance and Approval Responsibilities
 
-Each attack chain should receive a dedicated regression test demonstrating that the relevant trust boundaries are enforced. The complete chains have not been proven end to end, and remediation acceptance must not assume that their hypothetical pivots were previously demonstrated.
+The Technical Director is accountable for architecture, engineering delivery, and remediation assurance across technical teams.
 
-### Phase 3 — Quarterly Control Improvements
+The Chief Information Security Officer coordinates risk treatment, monitors remediation progress, and sponsors the remediation budget presented to the audit committee.
 
-F-04 should be addressed through verification of the managed mTLS gateway and restoration of certificate-validation defense in depth. The documented gateway controls reduce potential exposure only if they are consistently enforced and cannot be bypassed.
+The Data Protection Officer approves applicable health-data retention requirements and evaluates privacy implications, particularly for F-01 and F-06.
 
-For F-06, the DPO should confirm the authorized retention policy and applicable exceptions. The Technical Director should then implement automatic expiration and deletion controls, supported by audit evidence showing that export packages cannot remain accessible beyond approved periods.
+The Compliance and HDS Manager coordinates audit evidence and ensures that remediation records support HDS renewal readiness.
 
-Chain 3 should undergo additional identity and support-workflow validation during the quarterly remediation cycle, with particular attention to laboratory users outside the documented SSO/MFA coverage.
+The Chief Financial Officer reviews implementation cost assumptions and supports budget approval.
 
-### Phase 4 — Backlog Hardening
+The Chief Executive Officer retains responsibility for strategic risk acceptance and business-continuity decisions.
 
-F-08 should be remediated through uniform password-recovery responses, improved throttling, and authentication monitoring.
+These governance responsibilities do not replace the operational remediation owners identified in the matrix.
 
-Although classified as P3 when considered individually, F-08 remains a dependency of Chain 3. Its remediation should be accelerated if testing demonstrates a practical path from account enumeration to unauthorized case submission or account compromise.
+## Remediation Sequence
 
-## Ownership and Governance
+### Immediate Remediation
 
-The Technical Director is accountable for coordinating implementation of application, integration, and authorization fixes.
+The Head of Platform Engineering must address F-01 to prevent unauthorized cross-laboratory access to diagnostic results.
 
-The CISO owns the overall risk-prioritization process, cross-system attack-chain validation, and reporting of remediation progress to the audit committee.
+The Data Platform Lead must remediate F-10 by enforcing verified tenant identity within the analytics service.
 
-The DPO owns the privacy and retention-policy decisions associated with F-06, while technical implementation remains the responsibility of the Technical Director.
+The Identity and Access Management Lead must remediate F-03/09 by restricting connector permissions and eliminating stale administrative privileges.
 
-The Compliance / HDS Manager should review the resulting evidence for relevance to the upcoming HDS renewal audit and applicable regulatory obligations.
+The Integration Engineering Lead must implement authenticated partner webhook processing for F-05.
 
-Each remediation item should be closed only after its owner has provided documented implementation evidence and a successful security regression test. A compensating control must not be treated as effective solely because it is described in policy or architecture documentation.
+The Support Operations Manager must coordinate remediation of F-02 with the Technical Director to prevent stored active content from executing in authenticated support sessions.
 
-## Budget and Audit Committee Considerations
+### Attack-Chain Validation
 
-The immediate remediation budget should prioritize tenant isolation, connector authorization, diagnostic workflow integrity, and support-portal security.
+Chain 1 requires coordinated remediation of F-03/09, F-10, and F-01, followed by validation of the connector-to-analytics network path, identifier-discovery assumptions, and cross-tenant authorization boundaries.
 
-High-cost work is concentrated in authorization-lifecycle improvements and coordinated attack-chain validation. These investments address multiple findings and reduce the risk of repeated failures across shared trust boundaries.
+Chain 2 requires correction of stored XSS and stale administrative authorization, followed by verification of session separation and privileged-action controls.
 
-MediPath's annual recurring revenue is approximately EUR 31.2 million. A hypothetical 1% laboratory-client churn scenario corresponds to approximately EUR 312,000 in annual recurring revenue exposure, while a 5% scenario corresponds to approximately EUR 1.56 million. These are illustrative commercial scenarios, not expected losses attributable to any individual finding.
+Chain 3 requires remediation of the support-portal XSS and password-recovery enumeration weaknesses, followed by validation of the account-access and case-submission prerequisites.
 
-The upcoming HDS renewal audit and the audit committee's eight-week budget window increase the importance of early remediation ownership, measurable milestones, and documented evidence.
+The inherited evidence establishes the individual weaknesses but does not demonstrate the complete attack chains end to end.
 
-F-07 is excluded from this matrix because the reported bulk-export behavior was retired from the active vulnerability register as an intended, pre-approved business function. Assurance testing of the documented export safeguards remains a separate control-verification recommendation.
+### Quarterly Remediation
+
+The Site Reliability Engineering Lead must validate the managed mTLS gateway's enforcement and bypass resistance for F-04, coordinating connector-side changes with the Integration Engineering Lead.
+
+The Head of Platform Engineering must implement retention enforcement for F-06 after the Data Protection Officer confirms the applicable retention policy.
+
+Additional validation of Chain 3 must assess the feasibility of its intermediate attack steps and the effectiveness of authentication controls.
+
+### Backlog Improvements
+
+The Identity and Access Management Lead must address F-08 through uniform recovery responses, improved throttling, and authentication monitoring.
+
+F-08 should be accelerated if additional evidence demonstrates a practical path to unauthorized account access or support-case submission.
+
+## Remediation Verification and Closure
+
+Every remediation owner must provide:
+
+1. Documented corrective actions.
+2. Configuration or implementation evidence.
+3. Successful security regression testing.
+4. Confirmation that related trust boundaries are enforced.
+5. Evidence suitable for review by the CISO, Technical Director, and Compliance and HDS Manager.
+
+Attack-chain remediation is considered complete only after the relevant operational owners have verified their individual fixes and the coordinated regression tests demonstrate that the identified attack paths are blocked.
+
+F-07 remains retired from the active vulnerability register because the inherited test demonstrated an intended, pre-approved export capability rather than an unauthorized export. Verification of production enforcement across all export paths remains a separate control-assurance recommendation.
 
 ## Conclusion
 
-The remediation plan prioritizes confirmed cross-tenant authorization failures, integrity weaknesses, and excessive privileges while accounting for the potential escalation created by multi-stage attack chains.
+The remediation matrix assigns each retained finding and attack chain to a specific operational role within MediPath's documented organization.
 
-Immediate actions focus on reducing the most consequential patient-data and workflow risks. Quarterly work addresses retention governance, transport-security defense in depth, and additional chain validation. Lower-priority identity hardening remains visible in the backlog and may be accelerated if new evidence changes its risk profile.
+Technical implementation responsibilities are separated from executive oversight, regulatory approval, and budget governance.
 
-Clear ownership, explicit dependencies, and evidence-based closure criteria provide MediPath's CISO and audit committee with a defensible basis for allocating remediation resources and tracking progress.
+This structure provides the CISO and audit committee with a defensible remediation sequence, clear accountability, and evidence-based closure criteria.
