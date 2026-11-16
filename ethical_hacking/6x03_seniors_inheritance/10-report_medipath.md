@@ -1,7 +1,7 @@
 # Penetration Test Report, MediPath Diagnostics
 
 **Engagement reference:** VS-MPD-26-041  
-**Technical testing period:** 04–12 June 2026  
+**Reporting period:** 04–12 June 2026  
 **Prepared by:** Junior Security Consultant, Vanguard Security  
 **Technical assessment:** Sarah Chen, Senior Security Consultant  
 **Distribution:** MediPath Diagnostics Audit Committee  
