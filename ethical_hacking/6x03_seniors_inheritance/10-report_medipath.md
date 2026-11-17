@@ -4,7 +4,7 @@
 **Reporting period:** 04–12 June 2026  
 **Prepared by:** Junior Consultant, Vanguard Security  
 **Technical assessment:** Sarah Chen, Senior Security Consultant  
-**Distribution:** MediPath Diagnostics Audit Committee  
+**Distribution:** MediPath audit committee
 **Classification:** Confidential — Client Distribution Only
 
 ---
