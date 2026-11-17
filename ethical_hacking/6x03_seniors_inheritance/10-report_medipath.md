@@ -678,6 +678,21 @@ The CEO and board observer should receive a concise progress dashboard covering 
 
 Within the eight-week governance decision period, the committee should formally record remediation approvals, resource commitments, and any residual risks accepted by management.
 
+### 5.4 Management Decision Record
+
+The audit committee should formally approve the immediate remediation programme for F-01, F-02, F-03/09, F-05, and F-10, with accountable owners, sufficient resources, and independent verification of completed corrective actions.
+
+F-04 and F-06 should remain under a documented quarterly remediation plan, while F-08 should be tracked through the managed security improvement backlog. F-07 is retired from the active vulnerability register, subject to continued verification of the approved export controls.
+
+The committee is requested to make four decisions:
+
+1. Approve the P1 remediation programme and allocate the necessary resources.
+2. Require evidence-based independent verification of completed remediation actions.
+3. Ensure DPO oversight and preparation of supporting evidence for the upcoming HDS certification renewal.
+4. Review unresolved material risks and document formal risk acceptance decisions within the eight-week governance window.
+
+Management must distinguish demonstrated technical findings from hypothetical attack chains and conditional financial scenarios. Residual risks should only be accepted with a documented rationale, accountable owner, and scheduled review date.
+
 ---
 
 ## 6. Limitations and Uncertainty
@@ -974,27 +989,3 @@ Potential support-session misuse
 | ARR | Annual Recurring Revenue |
 | False positive | An observation initially treated as a vulnerability but subsequently determined not to demonstrate the suspected security defect |
 
----
-
-## 8. Final Assessment and Management Decision Record
-
-The engagement confirms material weaknesses affecting MediPath's patient-data boundaries, trusted integrations, diagnostic workflow integrity, and authorization controls.
-
-The most urgent corrective actions concern F-01, F-02, F-03/09, F-05, and F-10.
-
-F-04 and F-06 require planned remediation and supporting control verification, while F-08 should be addressed through the managed security backlog.
-
-F-07 has been retired from the active vulnerability register, subject to continued verification of the approved export workflow.
-
-The audit committee should approve the immediate remediation program, confirm accountable owners and funding, require independent validation, and establish a formal process for residual-risk acceptance.
-
-**Required management decisions:**
-
-1. Approve and resource the P1 remediation program.
-2. Require evidence-based verification of completed corrective actions.
-3. Confirm DPO and HDS audit-readiness oversight.
-4. Review and formally decide on any material residual risks within the eight-week governance window.
-
-**Overall conclusion:** MediPath should treat the confirmed authorization and workflow-integrity weaknesses as immediate remediation priorities while maintaining a clear distinction between demonstrated technical findings, conditional attack scenarios, and hypothetical financial consequences.
-
-**End of Report**
