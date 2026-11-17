@@ -2,8 +2,8 @@
 
 **Engagement reference:** VS-MPD-26-041  
 **Reporting period:** 04–12 June 2026  
-**Prepared by:** Junior Security Consultant, Vanguard Security  
-**Technical assessment:** Sarah Chen, Senior Consultant  
+**Prepared by:** Junior Consultant, Vanguard Security  
+**Technical assessment:** Sarah Chen, Senior Security Consultant  
 **Distribution:** MediPath Diagnostics Audit Committee  
 **Classification:** Confidential — Client Distribution Only
 
