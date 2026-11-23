@@ -18,7 +18,7 @@
 
 ### 2. A minor IT incident in a quarterly communique
 
-- **Value:** Targeted phishing incident in May 2024 causing temporary lockouts of a small number of staff mailboxes.
+- **Value:** Q2 2024 — Targeted phishing incident in May 2024 causing temporary lockouts of a small number of staff mailboxes.
 - **Exact source (URL / file / metadata field):** http://10.42.126.67/press/communiques/q2-2024 — "Helix Maritime — Quarterly Communiqué, Q2 2024", Office of the Chief Executive, published 2024-07-15.
 - **Justification (1 line):** The Q2 2024 communiqué reports that several staff mailboxes were briefly locked following targeted phishing in May, with no client data affected and accounts restored within hours.
 - **Cross-reference / alternative ruled out:** The planned migration of corporate mailboxes to a managed provider was a separate operational project, not the reported security incident.
