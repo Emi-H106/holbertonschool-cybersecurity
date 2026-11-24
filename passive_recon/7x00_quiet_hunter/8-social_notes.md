@@ -10,31 +10,47 @@
 
 ## Findings to record
 
-
 ### 1. Community-manager identity (from signatures/patterns)
 
 - **Value:** Marleen Koster — Community & Communications Manager at Helix Maritime Insurance N.V.
-- **Exact source (URL / file / metadata field):** http://10.42.252.42/social/employees/marleen-koster — employee profile, including the name, headline, about section and corporate account responsibilities. Additional source: http://10.42.252.42/social — posts signed "M.K." by the corporate account @helixmaritime.
-- **Justification (1 line):** Posts published by @helixmaritime repeatedly use the initials "M.K.", and Marleen Koster's professional profile explicitly confirms that she runs the company's corporate social media channels.
-- **Cross-reference / alternative ruled out:** The initials are consistent with Marleen Koster, and her profile provides direct confirmation of responsibility for the corporate account; this attribution does not rely solely on matching initials.
+- **Platform/Page:** Wavelength corporate social feed and employee profile.
+- **Post URL or identifier:** `post-1`, `post-2`, `post-4`, `post-5`; employee profile `marleen-koster`.
+- **Exact source (URL / file / metadata field):** http://10.42.252.42/social/employees/marleen-koster — employee profile, including the `name`, `headline`, `about`, and `Handles` fields. Supporting source: http://10.42.252.42/social.
+- **Evidence:** Corporate posts repeatedly contain the signature "M.K." The employee profile identifies Marleen Koster and states that she runs the corporate communications and `@helixmaritime` social channels.
+- **Retrieval date:** 2026-11-24.
+- **Justification (1 line):** The repeated "M.K." signatures are consistent with Marleen Koster, whose employee profile explicitly confirms responsibility for the corporate account.
+- **Cross-reference / alternative ruled out:** Initials alone are insufficient to identify a person; the employee profile provides independent confirmation of her role.
 
 ### 2. An upcoming event not yet on the corporate site
 
-- **Value:** Rotterdam Maritime Week 2025 — September 2025; Helix Maritime announced that it would exhibit at the event.
-- **Exact source (URL / file / metadata field):** http://10.42.252.42/social — Wavelength corporate post `post-2`, published 2025-05-29, by `@helixmaritime`. The post states: "Save the date — we can confirm Helix will exhibit at Rotterdam Maritime Week 2025 this September."
-- **Justification (1 line):** The corporate social-media announcement explicitly identifies the event, the September 2025 timeframe, and Helix's planned participation.
-- **Cross-reference / alternative ruled out:** The announcement is distinct from general company updates and from the Rotterdam claims-team recognition post; the photographed sprint whiteboard independently references "RMW booth prep — Rotterdam Maritime Week (Sept)." Absence from the corporate website has not been independently verified.
+- **Value:** Rotterdam Maritime Week 2025 — September 2025, with Helix Maritime announcing its planned participation.
+- **Platform/Page:** Wavelength — Helix Maritime corporate social feed.
+- **Post URL or identifier:** `post-2`, published 2025-05-29, by `@helixmaritime`.
+- **Exact source (URL / file / metadata field):** http://10.42.252.42/social — corporate post `post-2`, `date` and `body` fields.
+- **Evidence:** "Save the date — we can confirm Helix will exhibit at Rotterdam Maritime Week 2025 this September. Come and find the team at the Helix stand for a coffee and a chat about hull, cargo and the year ahead. More details soon. — M.K."
+- **Retrieval date:** 2026-11-24.
+- **Observation:** The social post directly announces Helix Maritime's intention to exhibit at Rotterdam Maritime Week in September 2025.
+- **Inference:** None required to establish the event announcement. Whether the event was absent from the corporate website at the time has not been verified.
+- **Justification (1 line):** The dated corporate social post explicitly names the event, its planned month, and the company's intended participation.
+- **Cross-reference / alternative ruled out:** The finding is based exclusively on the identified corporate social post; no unsupported claim about the corporate website's contents is made.
 
 ### 3. Information accidentally visible in a corporate photo
 
-- **Value:** Internal application host `hlx-app-03.helix-maritime.example`, identified as the target host for the Tidewater v2 deployment on a photographed platform-team sprint whiteboard.
-- **Exact source (URL / file / metadata field):** http://10.42.252.42/social/gallery — gallery image `photo-whiteboard`, associated with the 2025-06-03 corporate post `post-3`. Original image: http://10.42.252.42/images/whiteboard-exposure.svg. Visible whiteboard text: "Deploy Tidewater v2", "target host: hlx-app-03", and "(hlx-app-03.helix-maritime.example)".
-- **Justification (1 line):** A publicly shared office photograph exposes a specific internal application hostname and its association with an active software deployment.
-- **Cross-reference / alternative ruled out:** The value comes from text embedded in the original SVG image rather than from the social-media caption alone; the same whiteboard also contains other infrastructure details, including `staging-quote.helix-maritime.example` and `hlx-mail01 (198.51.100.25)`, but the Tidewater deployment hostname is the selected finding.
+- **Value:** `hlx-app-03.helix-maritime.example` — an internal-looking hostname visible in a photographed sprint-planning whiteboard.
+- **Platform/Page:** Wavelength corporate social gallery and original SVG image.
+- **Post URL or identifier:** Gallery image `photo-whiteboard`; corporate post `post-3`, dated 2025-06-03.
+- **Exact source (URL / file / metadata field):** http://10.42.252.42/social/gallery — image `photo-whiteboard`. Original SVG: http://10.42.252.42/images/whiteboard-exposure.svg.
+- **Evidence:** Visible whiteboard text includes "Deploy Tidewater v2", "target host: hlx-app-03", and "(hlx-app-03.helix-maritime.example)".
+- **Retrieval date:** 2026-11-24.
+- **Observation:** The image contains the hostname `hlx-app-03.helix-maritime.example` alongside the text "Deploy Tidewater v2" and "target host: hlx-app-03".
+- **Inference:** The hostname may identify a system associated with the Tidewater v2 deployment. The image alone does not establish whether the host exists, is operational, or is accessible.
+- **Justification (1 line):** The original SVG visibly exposes a hostname and related project text that are not present in the social post's caption.
+- **Cross-reference / alternative ruled out:** The finding is grounded in the image's visible text rather than an assumption about infrastructure configuration; no claim of confirmed host accessibility is made.
 
 ## Open questions / things to verify
 
-- Confirm whether Rotterdam Maritime Week 2025 was absent from the main corporate website at the time of the 2025-05-29 social-media announcement.
-- Confirm whether the Tidewater v2 deployment target was intended to be publicly disclosed; the photograph provides evidence of exposure but does not establish the system's accessibility.
-- The social posts and photograph are historical sources from May–June 2025. "Upcoming" refers to the event's status when the announcement was published, not its status on the investigation date.
+- Whether Rotterdam Maritime Week 2025 was absent from the corporate website when `post-2` was published on 2025-05-29.
+- Whether the hostname visible in `photo-whiteboard` corresponds to an operational internal system.
+- Whether the whiteboard information was approved for public disclosure.
+- The event was upcoming relative to the May 2025 announcement, not relative to the evidence retrieval date.
 - Evidence reviewed: 2026-11-24.
