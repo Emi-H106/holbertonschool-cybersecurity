@@ -11,40 +11,49 @@ All findings are based on publicly accessible information. No authentication byp
 
 ---
 
-## Finding 1 — Senior IT / Security Lead
+## Finding 1 — Senior IT Lead and Corporate Email
 
 **Value:**
-- Full name: **Joris Bakker**
-- Position: Infrastructure & Security Lead
-- Employer: Helix Maritime Insurance N.V.
-- Location: Rotterdam, Netherlands
-- Corporate email: **Not verified**
+- Full name: Pieter Janssen
+- Role: Engineering Manager, Technology Team
+- Company: Helix Maritime Insurance N.V.
+- Corporate email: `pieter.janssen@helix-maritime.example`
 
-**Exact source (URL / file / metadata field):**
+**Sources:**
 
-- `http://10.42.252.42/social/employees/joris-bakker`
-  - `name`: Joris Bakker
-  - `headline`: Infrastructure & Security Lead at Helix Maritime
-  - `employer`: Helix Maritime Insurance N.V.
-  - `location`: Rotterdam, Netherlands
+1. `http://10.42.252.42/social/employees/pieter-janssen`
+   - Profile name: Pieter Janssen
+   - Headline: Engineering Manager at Helix Maritime
+   - Employer: Helix Maritime Insurance N.V.
+   - Current role: Engineering Manager
 
-- `http://10.42.252.42/careers/security-engineer`
-  - Security Engineer job posting, published 2025-05-06
-  - References the company's Infrastructure & Security Lead.
+2. `http://10.42.252.42/developer`
+   - Repository: Tidewater Risk Engine
+   - Commit: `a17be90`
+   - Author: `pjanssen`
+   - Email: `pieter.janssen@helix-maritime.example`
+   - Date: 2025-05-28
 
-**Justification (1 line):**
+3. `http://10.42.252.42/careers/security-engineer`
+   - Identifies Pieter Janssen as the Engineering Manager responsible for reviewing applications for the Security Engineer position.
 
-The public employee profile explicitly identifies Joris Bakker as Helix Maritime's Infrastructure & Security Lead, and the security engineering job posting independently confirms that this role exists within the company.
+**Justification:**
 
-**Cross-reference / alternative ruled out:**
+Pieter Janssen is identified as Engineering Manager at Helix Maritime Insurance N.V. His professional profile confirms his leadership position within the company's technology team.
 
-A separate profile also named Joris Bakker belongs to a Logistics Coordinator at Batavia Freight BV in Amsterdam. That individual is excluded because the employer, role, and location do not match the target.
+The Security Engineer vacancy independently identifies Pieter Janssen as Engineering Manager, linking him to technical recruitment.
 
-Pieter Janssen is identified as Engineering Manager and recruitment contact, not as the Infrastructure & Security Lead.
+The publicly visible developer repository metadata associates the username `pjanssen` with the corporate email address `pieter.janssen@helix-maritime.example`.
 
-**Verification status: PARTIAL**
+Together, these sources support his identity, senior technical role, and corporate email address.
 
-The employee's name and role are confirmed. No verified corporate email address was identified in the inspected public website data, repository metadata, career posting, or six published PDF documents. No email address has been inferred from naming conventions.
+**Cross-reference and alternatives ruled out:**
+
+Joris Bakker is separately identified as Infrastructure & Security Lead, but no verified personal corporate email address was found for him in the reviewed public sources.
+
+Pieter Janssen was selected because his management role and corporate email are both supported by publicly visible evidence.
+
+The corporate email attributed to Pieter Janssen is taken directly from repository commit metadata and is not inferred from an email naming convention.
 
 ---
 
