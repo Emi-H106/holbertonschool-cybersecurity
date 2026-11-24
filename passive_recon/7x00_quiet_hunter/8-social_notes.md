@@ -10,12 +10,13 @@
 
 ## Findings to record
 
+
 ### 1. Community-manager identity (from signatures/patterns)
 
-- **Value:** Marleen Koster — Community & Communications Manager, Helix Maritime Insurance N.V., Rotterdam, Netherlands.
-- **Exact source (URL / file / metadata field):** http://10.42.252.42/social/employees/marleen-koster — employee profile, `name`, `headline`, `about`, and `Handles` fields. Supporting evidence: http://10.42.252.42/social — corporate Wavelength posts `post-1`, `post-2`, `post-3`, `post-4`, and `post-5`, dated 2025-05-21 through 2025-06-12.
-- **Justification (1 line):** The corporate posts repeatedly carry the signature "M.K.", and Marleen Koster's employee profile explicitly states that she manages the `@helixmaritime` corporate social channels.
-- **Cross-reference / alternative ruled out:** The initials alone would not establish an identity, but the employee profile directly confirms Marleen Koster's responsibility for the account, making the attribution stronger than a signature-only inference.
+- **Value:** Marleen Koster — Community & Communications Manager at Helix Maritime Insurance N.V.
+- **Exact source (URL / file / metadata field):** http://10.42.252.42/social/employees/marleen-koster — employee profile, including the name, headline, about section and corporate account responsibilities. Additional source: http://10.42.252.42/social — posts signed "M.K." by the corporate account @helixmaritime.
+- **Justification (1 line):** Posts published by @helixmaritime repeatedly use the initials "M.K.", and Marleen Koster's professional profile explicitly confirms that she runs the company's corporate social media channels.
+- **Cross-reference / alternative ruled out:** The initials are consistent with Marleen Koster, and her profile provides direct confirmation of responsibility for the corporate account; this attribution does not rely solely on matching initials.
 
 ### 2. An upcoming event not yet on the corporate site
 
