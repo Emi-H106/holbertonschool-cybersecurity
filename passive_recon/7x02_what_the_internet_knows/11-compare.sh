@@ -25,7 +25,7 @@ rank_asset() {
     local asset="$1"
     local weight="$2"
 
-    if (( weight > worst_weight )); then
+    if [[ "$weight" -gt "$worst_weight" ]]; then
         worst_weight=$weight
         worst_asset="$asset"
     fi
@@ -165,14 +165,23 @@ if [[ "$reputation" =~ ^[0-9]+$ && -n "$flag" ]] &&
     esac
 fi
 
-# Determine the most exposed estate.
-winner="Cerebra"
+# Sort estates by exposure score in descending order.
+ranking=$(
+    for estate in Cerebra Yume Verdant; do
+        printf '%s %s\n' "${scores[$estate]}" "$estate"
+    done | sort -k1,1nr -k2,2
+)
 
-for estate in Cerebra Yume Verdant; do
-    if (( scores[$estate] > scores[$winner] )); then
+# Select the estate with the maximum exposure score.
+max_score=-1
+winner=""
+
+while read -r score estate; do
+    if [[ "$score" -gt "$max_score" ]]; then
+        max_score="$score"
         winner="$estate"
     fi
-done
+done <<< "$ranking"
 
 # Print exactly two lines.
 printf '%s\n' "$winner" "$worst_asset"
