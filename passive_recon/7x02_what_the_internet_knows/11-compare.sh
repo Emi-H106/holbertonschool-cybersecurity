@@ -138,17 +138,26 @@ if [[ -n "${secret[0]:-}" ]]; then
     rank_asset "yume.lab" "$weight"
 fi
 
-# Task 10: Breach and reputation intelligence.
+# Task 10: breach and reputation intelligence.
 mapfile -t intelligence < 10-flag.txt
 
-if [[ -n "${intelligence[0]:-}" ]]; then
-    add_score Cerebra 4
+# Validate the breach finding in Name Year format.
+breach="${intelligence[0]:-}"
+
+if [[ "$breach" =~ ^(.+)[[:space:]]([0-9]{4})$ ]]; then
+    breach_name="${BASH_REMATCH[1]}"
+    breach_year="${BASH_REMATCH[2]}"
+
+    if [[ -n "$breach_name" && -n "$breach_year" ]]; then
+        add_score Cerebra 4
+    fi
 fi
 
-read -r ip reputation flag <<< "${intelligence[1]}"
+# Evaluate the IP reputation finding.
+read -r ip reputation flag <<< "${intelligence[1]:-}"
 
-if [[ "$reputation" =~ ^[0-9]+$ ]] &&
-   (( reputation >= 7 )); then
+if [[ "$reputation" =~ ^[0-9]+$ && -n "$flag" ]] &&
+   (( 10#$reputation >= 7 )); then
     case "$ip" in
         127.22.0.10) add_score Cerebra 7 ;;
         127.22.0.20) add_score Yume 7 ;;
