@@ -1,0 +1,2 @@
+VerdantCMS/3.4.1
+4979e27c698fd5ba24ad3a92e397ec86
